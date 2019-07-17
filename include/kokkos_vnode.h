@@ -1,34 +1,41 @@
-/*
- * dslash_vnode.h
- *
- *  Created on: Jul 1, 2019
- *      Author: bjoo
- */
+#ifndef TEST_KOKKOS_VNODE_H
+#define TEST_KOKKOS_VNODE_H
 
-#pragma once
-#include <array>
-#include "dslash/dslash_vectype_sycl.h"
+//#ifdef KOKKOS_HAVE_CUDA
+//#include <sm_30_intrinsics.h>
+//#endif
 
+#include "Kokkos_Core.hpp"
+#include "kokkos_dslash_config.h"
+#include "kokkos_defaults.h"
+#include "kokkos_traits.h"
+#include "kokkos_ops.h"
+#include "kokkos_vectype.h"
+#include "lattice/lattice_info.h"
 
+#include <assert.h>
 namespace MG {
 
-// An array for our masks.
+
 template<int N>
 struct MaskArray {
-	std::array<int,N> _data;
+	int _data[N];
 
+	KOKKOS_FORCEINLINE_FUNCTION
 	int& operator()(int i) { return _data[i]; }
+
+	KOKKOS_FORCEINLINE_FUNCTION
 	const int& operator()(int i) const { return _data[i]; }
+
 };
 
-// Forward declaration of VNode
 template<typename T, int N>
 struct VNode;
 
 template<typename T>
   struct VNode<T,1> {
-  using VecTypeGlobal = SIMDComplexSyCL<T,1>;
-  using VecType =  SIMDComplexSyCL<T,1>;
+  using VecTypeGlobal = SIMDComplex<typename BaseType<T>::Type,1>;
+  using VecType =  SIMDComplex<typename BaseType<T>::Type,1>;
   using MaskType = MaskArray<1>;
 
   static constexpr MaskType XPermuteMask = {0};
@@ -50,7 +57,9 @@ template<typename T>
   VecType permute(const MaskType& mask, const VecTypeGlobal& vec_in)
   {
 	  VecType vec_out;
+	 // Kokkos::parallel_for(VectorPolicy(1),[&](const int& i){
 	  ComplexCopy( vec_out, vec_in);
+	 // });
 	  return vec_out;
   }
 
@@ -79,9 +88,9 @@ struct VNode<T,2> {
   static constexpr int Dim3 = 2;
 
   static
-  KOKKOS_FORCEINLINE_FUNCTION
+  KOKKOS_FORCEINLINE_FUNCTION  
   VecType permute(const MaskType& mask, const VecTypeGlobal& vec_in)
-  {
+  { 
       VecType vec_out;
 	  Kokkos::parallel_for(VectorPolicy(2),[&](const int& i){
 		  ComplexCopy( vec_out(i), vec_in( mask(i) ));
@@ -175,7 +184,7 @@ struct VNode<T,8> {
 namespace MG {
 
 struct PermMaskAVX512 {
- union {
+ union { 
    unsigned int maskdata[16];
    __m512i maskvalue;
  };
@@ -217,7 +226,56 @@ struct VNode<MGComplex<float>,8> {
 } // Namespace
 #endif // AVX512
 
+#if defined(MG_USE_AVX2)
+
+#include <immintrin.h>
+
+namespace MG {
+
+struct PermMaskAVX2 {
+ union {
+   unsigned int maskdata[8];
+   __m256i maskvalue;
+ };
+};
+
+template<>
+struct VNode<MGComplex<float>,4> {
+
+  using VecTypeGlobal = SIMDComplex<float,4>;
+  using VecType = SIMDComplex<float,4>;
+
+  static constexpr int VecLen = 4;
+  static constexpr int NDim = 2;
+
+  static constexpr int Dim0 = 1;
+  static constexpr int Dim1 = 1;
+  static constexpr int Dim2 = 2;
+  static constexpr int Dim3 = 2;
+
+  using MaskType = PermMaskAVX2;
+
+  // These initializations rely on __m512i being a union type
+  static constexpr MaskType NoPermuteMask = {0,1,2,3,4,5,6,7};
+  static constexpr MaskType XPermuteMask = {0,1,2,3,4,5,6,7};
+  static constexpr MaskType YPermuteMask = {0,1,2,3,4,5,6,7};
+  static constexpr MaskType ZPermuteMask = {2,3,0,1,6,7,4,5};
+  static constexpr MaskType TPermuteMask = {4,5,6,7,0,1,2,3};
+
+  static
+  KOKKOS_FORCEINLINE_FUNCTION
+  VecType permute(const MaskType& mask, const VecTypeGlobal& vec_in)
+  {
+	VecType vec_out;
+	vec_out._vdata = _mm256_permutexvar_ps(mask.maskvalue, vec_in._vdata);
+	return vec_out;
+  }
+}; // struct vector length = 8
+
+} // Namespace
+#endif // AVX2
 
 
 
 
+#endif

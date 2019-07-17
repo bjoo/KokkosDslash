@@ -1,5 +1,5 @@
 
-#include "sycl_dslash_config.h"
+#include "kokkos_dslash_config.h"
 #include "lattice/constants.h"
 #include "lattice/lattice_info.h"
 #include "lattice/nodeinfo.h"

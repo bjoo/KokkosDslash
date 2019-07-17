@@ -26,6 +26,12 @@ target_include_directories( libmg PUBLIC
 target_include_directories( libmg PUBLIC 
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
 	$<INSTALL_INTERFACE:include>)
+	
+target_include_directories(libmg PUBLIC "${Kokkos_SOURCE_DIR}/core/src")
+target_include_directories(libmg PUBLIC "${Kokkos_SOURCE_DIR}/containers/src")
+target_include_directories(libmg PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
+target_include_directories(libmg PUBLIC "${Kokkos_BINARY_DIR}")
+	
 
 set_target_properties( libmg PROPERTIES CXX_STANDARD 11 )
 set_target_properties( libmg PROPERTIES CXX_EXTENSIONS OFF )

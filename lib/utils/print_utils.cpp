@@ -1,5 +1,5 @@
 #include "utils/print_utils.h"
-#include "sycl_dslash_config.h"
+#include "kokkos_dslash_config.h"
 #include "utils/initialize.h"
 #include <string>
 #include <cstdlib>

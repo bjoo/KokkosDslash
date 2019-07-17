@@ -5,7 +5,7 @@
  *      Author: bjoo
  */
 
-#include "sycl_dslash_config.h"
+#include "kokkos_dslash_config.h"
 #include "utils/print_utils.h"
 #include <string>
 #include <cstdlib>
@@ -13,6 +13,8 @@
 #ifdef HAVE_QDPXX
 #include <qdp.h>
 #endif
+
+#include <Kokkos_Core.hpp>
 
 namespace MG
 {
@@ -37,6 +39,10 @@ namespace MG
 			QDP::QDP_initialize(argc,argv);
 			MasterLog(INFO, "QDP++ Initialized");
 #endif
+
+			MasterLog(INFO, "Initializing Kokkos");
+			Kokkos::initialize(*argc,*argv);
+
 			isInitializedP = true;
 		} // if (! isInitiealizedP )
 	}
@@ -45,10 +51,15 @@ namespace MG
 	{
 		if ( isInitializedP ) {
 
+			MasterLog(INFO, "Finalizing Kokkos");
+			Kokkos::finalize();
+
 #if defined(HAVE_QDPXX)
 		MasterLog(INFO, "Finalizing QDP++");
 		QDP::QDP_finalize();
 #endif
+
+
 		isInitializedP = false;
 		}
 	}

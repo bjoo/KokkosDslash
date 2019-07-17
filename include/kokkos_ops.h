@@ -5,53 +5,52 @@
  *      Author: bjoo
  */
 
-#pragma once
+#ifndef TEST_KOKKOS_KOKKOS_OPS_H_
+#define TEST_KOKKOS_KOKKOS_OPS_H_
 
-#include <dslash/dslash_complex.h>
+#include "kokkos_defaults.h"
 
 namespace MG
 {
-#if 1
+
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void ComplexCopy(MGComplex<T>& result, const MGComplex<T>& source)
 {
 	result=source;
 }
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void ComplexZero(MGComplex<T>& result)
 {
 	result = MGComplex<T>(0,0);
 }
 
-
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void Load(MGComplex<T>& result, const MGComplex<T>& source)
 {
 	result = source;
 }
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void Store(MGComplex<T>& result, const MGComplex<T>& source)
 {
 	result = source;
 }
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void Stream(MGComplex<T>& result, const MGComplex<T>& source)
 {
 	result = source;
 }
 
-#endif
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void
 ComplexCMadd(MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 {
@@ -63,7 +62,7 @@ ComplexCMadd(MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 }
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void
 ComplexPeq(MGComplex<T>& res, const MGComplex<T>& a)
 {
@@ -75,7 +74,7 @@ ComplexPeq(MGComplex<T>& res, const MGComplex<T>& a)
 }
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void
 ComplexConjMadd(MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 {
@@ -87,7 +86,7 @@ ComplexConjMadd(MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_add_sign_B( MGComplex<T>& res, const MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 {
   T res_re = a.real() + sign*b.real();
@@ -96,7 +95,7 @@ void A_add_sign_B( MGComplex<T>& res, const MGComplex<T>& a, const T& sign, cons
 }
 
  template<typename T, int sign>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_add_sign_B( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 {
   const T fsign = static_cast<T>(sign);
@@ -107,7 +106,7 @@ void A_add_sign_B( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>&
 
 
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_add_sign_iB( MGComplex<T>& res, const MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 {
   T res_re =  a.real()-sign*b.imag();
@@ -116,7 +115,7 @@ void A_add_sign_iB( MGComplex<T>& res, const MGComplex<T>& a, const T& sign, con
 }
 
  template<typename T, int sign>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_add_sign_iB( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>& b)
 {
   const T fsign=static_cast<T>(sign);
@@ -129,7 +128,7 @@ void A_add_sign_iB( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>
 
 // a = -i b
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_peq_sign_miB( MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 {
   T res_re = a.real() + sign*b.imag();
@@ -139,7 +138,7 @@ void A_peq_sign_miB( MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 
 // a = -i b
  template<typename T, int sign>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_peq_sign_miB( MGComplex<T>& a, const MGComplex<T>& b)
 {
   const T fsign = static_cast<T>(sign);
@@ -151,7 +150,7 @@ void A_peq_sign_miB( MGComplex<T>& a, const MGComplex<T>& b)
 
 // a = b
 template<typename T>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_peq_sign_B( MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 {
   T res_re = a.real() + sign*b.real();
@@ -161,7 +160,7 @@ void A_peq_sign_B( MGComplex<T>& a, const T& sign, const MGComplex<T>& b)
 
 // a = b
  template<typename T, int sign>
-inline
+KOKKOS_FORCEINLINE_FUNCTION
 void A_peq_sign_B( MGComplex<T>& a, const MGComplex<T>& b)
 {
 
@@ -175,3 +174,5 @@ void A_peq_sign_B( MGComplex<T>& a, const MGComplex<T>& b)
 } // namespace
 
 
+
+#endif /* TEST_KOKKOS_KOKKOS_OPS_H_ */

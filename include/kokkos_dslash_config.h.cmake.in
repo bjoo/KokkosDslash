@@ -4,7 +4,7 @@
 #cmakedefine HAVE_QDPXX @HAVE_QDPXX@
 
 // Do we have OpenCL ?
-#cmakedefine HAVE_OPENCL @HAVE_OPENCL@
+#cmakedefine HAVE_KOKKOS @HAVE_KOKKOS@
 
 // What is our Default Loglevel (do we need this still ? )
 #cmakedefine MG_DEFAULT_LOGLEVEL @MG_DEFAULT_LOGLEVEL@
@@ -15,6 +15,9 @@
 // Can we configure the vector length?
 #cmakedefine MG_VECLEN_SP   @MG_VECLEN_SP@
 
-// Which complex type to use
-#cmakedefine MG_FORTRANLIKE_COMPLEX @MG_FORTRANLIKE_COMPLEX@
+// AVX512	
+#cmakedefine MG_USE_AVX512 @MG_USE_AVX512@
+
+// AVX2 
+#cmakedefine MG_USE_AVX2 @MG_USE_AVX2@
 
