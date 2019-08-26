@@ -21,7 +21,7 @@ using namespace MGTesting;
 using namespace QDP;
 
 
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
 constexpr static int V = 16;
 #else
         constexpr static int V = 8;
@@ -346,7 +346,7 @@ TEST(TestKokkos, TestDslash)
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
 	    Kokkos::fence();
 #endif
 	    double end_time = omp_get_wtime();
@@ -499,7 +499,7 @@ TEST(TestKokkos, TestDslashVecLonger)
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
 	    Kokkos::fence();
 #endif
 

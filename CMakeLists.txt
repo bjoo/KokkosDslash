@@ -21,6 +21,7 @@ option(MG_FORTRANLIKE_COMPLEX "Fortran like complex ordering (r,i,r,i,...r,i) fo
 # Kokkos-Dslash specific options
 option(MG_USE_AVX512 "Use AVX512 intrinsics" FALSE)
 option(MG_USE_AVX2 "Use AVX512 intrinsics" TRUE)
+option(MG_KOKKOS_USE_CUDA "Use CUDA" FALSE)
 option(MG_KOKKOS_USE_FLAT_DISPATCH "Flat parallel for..." FALSE)
 option(MG_KOKKOS_USE_TEAM_DISPATCH "Team based parallel for" FALSE)
 option(MG_KOKKOS_USE_MDRANGE_DISPATCH "MDRange based parallel for" FALSE)
@@ -38,6 +39,9 @@ endif()
 
 # Find OpenMP for backward compatibiliy
 #find_package(OpenMP REQUIRED)
+if ( KOKKOS_ENABLE_OPENMP )
+  find_package(OpenMP REQUIRED)
+endif()
 
 # Find QDP++  for tests
 list(APPEND CMAKE_MODULE_PATH "${QDPXX_DIR}")
@@ -49,6 +53,10 @@ if( QDPXX_FOUND )
   endif()
 endif() 
 
+if( MG_KOKKOS_USE_CUDA ) 
+
+
+endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/kokkos_dslash_config.h.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/kokkos_dslash_config.h)

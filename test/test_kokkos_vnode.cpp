@@ -27,7 +27,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
 static constexpr int VectorLength=1;
 #else
 
@@ -815,7 +815,7 @@ TEST(TestKokkos, TestDslash)
 	KokkosVDslash<VN,MGComplex<REAL32>,MGComplex<REAL32>,
 		      SIMDComplex<REAL32,VN::VecLen>,SIMDComplex<REAL32,VN::VecLen>> D(kokkos_spinor_even.GetInfo());
 
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
 	IndexArray blockings[6] = { { 1,1,1,1 },
 				    { 2,2,2,4 },
 				    { 4,4,1,2 },
@@ -838,7 +838,7 @@ TEST(TestKokkos, TestDslash)
            IndexType bz=blockings[b][2];
            IndexType bt=blockings[b][3];
 
-#ifdef KOKKOS_HAVE_CUDA
+#ifdef MG_USE_CUDA
            if( bx*by*bz*bt > 256 ) continue;
 #endif
 
