@@ -19,7 +19,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
-#if 0
+#ifndef MG_USE_CUDA
 TEST(TestKokkos, Initialization)
 {
 	IndexArray latdims={{8,8,8,8}};
