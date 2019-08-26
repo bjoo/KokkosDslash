@@ -10,7 +10,7 @@ set_target_properties(gmock_main PROPERTIES FOLDER extern)
 
 
 add_library( testutils qdpxx_utils.h qdpxx_latticeinit.h qdpxx_latticeinit.cpp
-    	reunit.cpp test_env.h test_env.cpp dslashm_w.cpp )
+    	reunit.cpp test_env.cpp dslashm_w.cpp )
 target_link_libraries( testutils libmg qdp kokkos gtest ) 
     	
 target_include_directories(testutils PUBLIC "${CMAKE_SOURCE_DIR}/include")
