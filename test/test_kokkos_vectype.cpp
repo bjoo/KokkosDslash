@@ -1,6 +1,5 @@
 #include "kokkos_dslash_config.h"
 #include "gtest/gtest.h"
-#include "test_env.h"
 #include "qdpxx_utils.h"
 #include "dslashm_w.h"
 
@@ -715,9 +714,3 @@ TEST(TestVectype, Test_A_peq_sign_B_FVLEN )
     });
 }
 #endif
-
-int main(int argc, char *argv[]) 
-{
-	return ::MGTesting::TestMain(&argc, argv);
-}
-

@@ -25,23 +25,24 @@ namespace MG
 
 	void initialize(int *argc, char ***argv)
 	{
+
+                MasterLog(INFO, "Initializing Kokkos");
+
 		if ( ! isInitializedP ) {
 			// Process args
-
+			Kokkos::initialize(*argc,*argv);
 			int i=0;
 			int my_argc = (*argc);
 
 			/* Process args here -- first step is to get the processor geomerty */
 			/* No args to process just now */
+		
 
 #ifdef HAVE_QDPXX
 			MasterLog(INFO, "Initializing QDP++");
 			QDP::QDP_initialize(argc,argv);
 			MasterLog(INFO, "QDP++ Initialized");
 #endif
-
-			MasterLog(INFO, "Initializing Kokkos");
-			Kokkos::initialize(*argc,*argv);
 
 			isInitializedP = true;
 		} // if (! isInitiealizedP )
@@ -51,16 +52,13 @@ namespace MG
 	{
 		if ( isInitializedP ) {
 
-			MasterLog(INFO, "Finalizing Kokkos");
-			Kokkos::finalize();
-
 #if defined(HAVE_QDPXX)
-		MasterLog(INFO, "Finalizing QDP++");
-		QDP::QDP_finalize();
+		  MasterLog(INFO, "Finalizing QDP++");
+		  QDP::QDP_finalize();
 #endif
-
-
-		isInitializedP = false;
+		  MasterLog(INFO, "Finalizing Kokkos");
+		  Kokkos::finalize();
+		  isInitializedP = false;
 		}
 	}
 
