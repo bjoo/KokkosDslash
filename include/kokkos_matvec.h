@@ -93,13 +93,15 @@ namespace MG
 		GaugeView<GT> u = u_in.GetData();
 		HalfSpinorView<ST> hspinor_out_view = hspinor_out.GetData();
 
+#ifndef MG_FLAT_PARALLEL_DSLASH
 		const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<ST>::value);
 		Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
 		    const int end_idx = start_idx + _sites_per_team  < num_sites ? start_idx + _sites_per_team : num_sites;
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const int i) {
-
-
+#else
+	Kokkos::parallel_for(num_sites, KOKKOS_LAMBDA(const int i) { 
+#endif
 				// Site local workspace...
 				HalfSpinorSiteView<TST> site_in;
 
@@ -119,7 +121,10 @@ namespace MG
 					}
 				}
 		});
+#ifndef MG_FLAT_PARALLEL_DSLASH
 		  });
+#endif
+
 	}
 
 
@@ -137,13 +142,15 @@ namespace MG
 		HalfSpinorView<ST> hspinor_out_view = hspinor_out.GetData();
 		GaugeView<GT> u = u_in.GetData();
 
+#ifndef MG_FLAT_PARALLEL_DSLASH
 		const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<ST>::value);
 		Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
 		    const int end_idx = start_idx + _sites_per_team  < num_sites ? start_idx + _sites_per_team : num_sites;
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const int i) {
-
-
+#else
+		Kokkos::parallel_for(num_sites,KOKKOS_LAMBDA(const int i) { 
+#endif
 			// Site local workspace...
 			HalfSpinorSiteView<TST> site_in;
 			for(int col=0; col <3; ++col) {
@@ -162,7 +169,10 @@ namespace MG
 				}
 			}
 		});
+#ifndef MG_FLAT_PARALLEL_DSLASH
 	});
+#endif
+
 	}
 
 }

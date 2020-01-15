@@ -393,7 +393,7 @@ KokkosProjectLattice<MGComplex<REAL>,MGComplex<REAL>,1,-1>(kokkos_in,kokkos_hspi
 }
 #endif
 
-#if 1
+#ifndef MG_USE_HIP
 TEST(TestKokkos, TestSpinProjectVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -585,7 +585,7 @@ TEST(TestKokkos, TestSpinRecons)
 #endif
 
 
-#if 1
+#ifndef MG_USE_HIP
 TEST(TestKokkos, TestSpinReconsVec)
 {
 	IndexArray latdims={{4,2,2,4}};

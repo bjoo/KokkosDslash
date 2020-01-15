@@ -9,6 +9,7 @@
 #define TEST_KOKKOS_KOKKOS_DEFAULTS_H_
 
 #include "kokkos_dslash_config.h"
+#include <Kokkos_Macros.hpp>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_Complex.hpp>
 
@@ -27,8 +28,8 @@ using HostExec = Kokkos::Serial;
   using GaugeLayout = Kokkos::LayoutLeft;
   using NeighLayout = Kokkos::LayoutLeft;
 #elif defined(MG_USE_HIP)
-  using ExecSpace = Kokkos::Cuda::execution_space;
-  using MemorySpace = Kokkos::Cuda::memory_space;
+  using ExecSpace = Kokkos::Experimental::HIP::execution_space;
+  using MemorySpace = Kokkos::Experimental::HIP::memory_space;
   
   using Layout = Kokkos::LayoutLeft;
   using GaugeLayout = Kokkos::LayoutLeft;
@@ -41,18 +42,20 @@ using HostExec = Kokkos::Serial;
   using NeighLayout = Kokkos::OpenMP::array_layout;
 #endif
 
-#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
+#if defined(MG_USE_CUDA) 
 using ThreadExecPolicy =  Kokkos::TeamPolicy<ExecSpace,Kokkos::LaunchBounds<128,1>>;
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
 
-#else
+#elif !defined(MG_USE_HIP)
 using ThreadExecPolicy = Kokkos::TeamPolicy<ExecSpace>;
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
 #endif
 
 
+#if !defined(MG_USE_HIP)
 using TeamHandle =  ThreadExecPolicy::member_type;
 using VectorPolicy = Kokkos::Impl::ThreadVectorRangeBoundariesStruct<int,TeamHandle>;
+#endif
 
 #if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
   // Try an N-dimensional threading policy for cache blocking

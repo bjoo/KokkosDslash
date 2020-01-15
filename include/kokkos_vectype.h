@@ -105,6 +105,7 @@ template<typename T, int N>
 
 #if ! defined( MG_USE_CUDA ) 
 
+#if !defined( MG_USE_HIP)
 // GENERAL THREADVECTORRANGE
 // T1 must support indexing with operator()
   template<typename T, int N, template <typename,int> class T1, template <typename,int> class T2>
@@ -441,6 +442,7 @@ KOKKOS_FORCEINLINE_FUNCTION
       a(i) = MGComplex<T>( res_re,res_im );
     });
 }
+#endif
 #else
 
  // Hacked for CUDA just work with thread IDX.x
