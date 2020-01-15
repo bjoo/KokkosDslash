@@ -10,7 +10,7 @@
 #include "kokkos_vnode.h"
 #include "kokkos_vneighbor_table.h"
 
-#undef MG_KOKKOS_USE_MDRANGE
+#undef KOKKOS_USE_MDRANGE
 namespace MG {
 
  template<typename T, typename VN, int _num_spins>

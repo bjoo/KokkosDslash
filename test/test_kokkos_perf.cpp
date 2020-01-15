@@ -14,6 +14,7 @@
 #include "./kokkos_matvec.h"
 #include "./kokkos_dslash.h"
 #include <omp.h>
+#include <ctime>
 
 using namespace MG;
 using namespace MGTesting;
@@ -341,15 +342,17 @@ TEST(TestKokkos, TestDslash)
 	   //for(int isign=-1; isign < 2; isign+=2) {
 	   int isign=1; 
 	    MasterLog(INFO, "Timing Dslash: isign == %d", isign);
-	    double start_time = omp_get_wtime();
+	    //double start_time = omp_get_wtime();
+	    auto start_time = std::clock();
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
 #ifdef MG_USE_CUDA
 	    Kokkos::fence();
 #endif
-	    double end_time = omp_get_wtime();
-	    double time_taken = end_time - start_time;
+	    // double end_time = omp_get_wtime();
+	    auto end_time = std::clock();
+	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 	    
 	    double rfo = 1.0;
 	    double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);
@@ -494,7 +497,8 @@ TEST(TestKokkos, TestDslashVecLonger)
 	  // for(int isign=-1; isign < 2; isign+=2) {
 	    int isign=1;
 	    MasterLog(INFO, "V=%d Sites per Team=%d Timing Dslash: isign == %d", V, per_team, isign);
-	    double start_time = omp_get_wtime();
+	    // double start_time = omp_get_wtime();
+	    auto start_time = std::clock();
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
@@ -502,8 +506,8 @@ TEST(TestKokkos, TestDslashVecLonger)
 	    Kokkos::fence();
 #endif
 
-	    double end_time = omp_get_wtime();
-	    double time_taken = end_time - start_time;
+	    auto end_time = std::clock();
+	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 
 	    double rfo = 1.0;
 	    double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);

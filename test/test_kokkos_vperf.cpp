@@ -15,7 +15,7 @@
 #include "./kokkos_vmatvec.h"
 #include "./kokkos_vdslash.h"
 #include <omp.h>
-
+#include <ctime>
 using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
@@ -95,7 +95,7 @@ TEST(TestKokkos, TestDslashTime)
 	IndexArray cb_latdims = kokkos_spinor_even.GetInfo().GetCBLatticeDimensions();
 	double num_sites = static_cast<double>(V*cb_latdims[0]*cb_latdims[1]*cb_latdims[2]*cb_latdims[3]);
 
-#if 1
+#if 0
 	int titers=20;
 	double best_flops = 0;
 	IndexArray best_blocks={1,1,1,1};
@@ -114,15 +114,15 @@ TEST(TestKokkos, TestDslashTime)
 #else
 					if ( num_blocks <= 256) {
 #endif
-						double start_time = omp_get_wtime();
+					 	auto start_time = std::clock();
 						for(int i=0; i < titers; ++i) {
 						  D(kokkos_spinor_even,gauge_even,kokkos_spinor_odd,isign,{x,y,z,t});
 						}
 #ifdef MG_USE_CUDA
 						Kokkos::fence();
 #endif
-						double end_time = omp_get_wtime();
-						double time_taken = end_time - start_time;
+						auto end_time = std::clock();
+						double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 						double flops = static_cast<double>(1320.0*num_sites*titers);
 						double floprate = flops/(time_taken*1.0e9);
 						MasterLog(INFO,"Tuning: (Bx,By,Bz,Bt)=(%d,%d,%d,%d) GFLOPS=%lf", x,y,z,t,floprate);
@@ -157,15 +157,16 @@ TEST(TestKokkos, TestDslashTime)
 		int isign = 1;
 		//for(int isign=-1; isign < 2; isign+=2) {
 			// Time it.
-			double start_time = omp_get_wtime();
+			auto start_time = std::clock();
+
 			for(int i=0; i < iters; ++i) {
 				D(kokkos_spinor_even,gauge_even,kokkos_spinor_odd,isign, best_blocks);
 			}
 #ifdef MG_USE_CUDA
 			Kokkos::fence();
 #endif
-			double end_time = omp_get_wtime();
-			double time_taken = end_time - start_time;
+			auto end_time = std::clock();
+			double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 
 			double rfo = 1.0;
 			double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);

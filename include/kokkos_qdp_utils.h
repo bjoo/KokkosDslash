@@ -36,7 +36,7 @@ namespace MG
 		}
 		auto h_out = Kokkos::create_mirror_view( kokkos_out.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[=](int i) {
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 4; ++spin) {
@@ -77,7 +77,7 @@ namespace MG
 		}
 		auto h_out = Kokkos::create_mirror_view( kokkos_out.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[=](int i) {
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 4; ++spin) {
@@ -117,7 +117,7 @@ namespace MG
 		auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 		Kokkos::deep_copy( h_in, kokkos_in.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {
 
 						for(int color=0; color < 3; ++color) {
@@ -157,7 +157,7 @@ namespace MG
 		auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 		Kokkos::deep_copy( h_in, kokkos_in.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {
 
 						for(int color=0; color < 3; ++color) {
@@ -194,7 +194,7 @@ namespace MG
 		}
 		auto h_out = Kokkos::create_mirror_view( kokkos_out.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[=](int i) {
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 2; ++spin) {
@@ -235,7 +235,7 @@ namespace MG
 		}
 		auto h_out = Kokkos::create_mirror_view( kokkos_out.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[=](int i) {
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 2; ++spin) {
@@ -274,7 +274,7 @@ namespace MG
 		auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 		Kokkos::deep_copy( h_in, kokkos_in.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 2; ++spin) {
@@ -312,7 +312,7 @@ namespace MG
 			auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 			Kokkos::deep_copy( h_in, kokkos_in.GetData() );
 
-			Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+			Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 					[&](int i) {
 							for(int color=0; color < 3; ++color) {
 								for(int spin=0; spin < 2; ++spin) {
@@ -351,7 +351,7 @@ namespace MG
 
 		auto h_out = Kokkos::create_mirror_view( kokkos_out.GetData() );
 
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[=](int i) {
 					for(int mu=0; mu< 4; ++mu) {
 						for(int color=0; color < 3; ++color) {
@@ -396,7 +396,7 @@ namespace MG
 		Kokkos::deep_copy(h_in, kokkos_in.GetData());
 
 		for(int mu=0; mu < 4; ++mu ) {
-		Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {
 			       for(int color=0; color < 3; ++color) {
 			    	   for(int color2=0; color2 < 3; ++color2) {

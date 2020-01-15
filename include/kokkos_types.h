@@ -22,7 +22,7 @@ namespace MG
 	class KokkosCBFineSpinor {
 	public:
 		KokkosCBFineSpinor(const LatticeInfo& info, IndexType cb)
-		: _cb_data("cb_data", info.GetNumCBSites(), 3, _num_spins), _info(info), _cb(cb) {
+		: _cb_data("cb_data", info.GetNumCBSites()), _info(info), _cb(cb) {
 
 			if( _info.GetNumColors() != 3 ) {
 				MasterLog(ERROR, "KokkosCBFineSpinor has to have 3 colors in info. Info has %d", _info.GetNumColors());

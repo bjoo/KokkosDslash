@@ -47,7 +47,7 @@ namespace MG
 	  IndexArray coarse_dims = kokkos_out.GetInfo().GetCBLatticeDimensions();
 	  IndexArray fine_dims = kokkos_out.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 			       [=](int i) {
 				 IndexArray c_coords;
 				 IndexToCoords(i, coarse_dims,c_coords);
@@ -107,7 +107,7 @@ namespace MG
 	  IndexArray coarse_dims = kokkos_out.GetInfo().GetCBLatticeDimensions();
 	  IndexArray fine_dims = kokkos_out.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 			       [=](int i) {
 				 IndexArray c_coords;
 				 IndexToCoords(i, coarse_dims,c_coords);
@@ -168,7 +168,7 @@ namespace MG
 	  IndexArray c_dims = kokkos_in.GetInfo().GetCBLatticeDimensions();
 	  IndexArray g_dims = kokkos_in.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_csites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_csites),
 			       [&](int i) {
 				 IndexArray c_coords;
 				     IndexToCoords(i,c_dims,c_coords);
@@ -225,7 +225,7 @@ namespace MG
 	  IndexArray c_dims = kokkos_in.GetInfo().GetCBLatticeDimensions();
 	  IndexArray g_dims = kokkos_in.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_csites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_csites),
 			       [&](int i) {
 				 IndexArray c_coords;
 				     IndexToCoords(i,c_dims,c_coords);
@@ -281,7 +281,7 @@ namespace MG
 	  IndexArray coarse_dims = kokkos_out.GetInfo().GetCBLatticeDimensions();
 	  IndexArray fine_dims = kokkos_out.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 			       [=](int i) {
 				 IndexArray c_coords;
 				 IndexToCoords(i, coarse_dims,c_coords);
@@ -343,7 +343,7 @@ namespace MG
 	  IndexArray c_dims = kokkos_in.GetInfo().GetCBLatticeDimensions();
 	  IndexArray g_dims = kokkos_in.GetGlobalInfo().GetCBLatticeDimensions();
 
-	  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_csites),
+	  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_csites),
 			       [&](int i) {
 			
 				 for(int dir=0; dir < 4; ++dir) {

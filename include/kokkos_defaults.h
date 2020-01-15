@@ -19,17 +19,9 @@
 namespace MG
 {
 
-#if defined(MG_USE_CUDA)
-template<typename T>
-using MGComplex = Balint::complex<T>;
-
-//template<typename T>
-//using MGComplex = Kokkos::complex<T>;
-
-#else
 template<typename T>
 using MGComplex = Kokkos::complex<T>;
-#endif
+using HostExec = Kokkos::Serial;
 
 #if defined(MG_USE_CUDA)
   using ExecSpace = Kokkos::Cuda::execution_space;

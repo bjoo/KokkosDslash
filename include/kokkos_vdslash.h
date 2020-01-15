@@ -19,7 +19,7 @@
 #include "kokkos_traits.h"
 #include "kokkos_vneighbor_table.h"
 
-#define MG_KOKKOS_USE_MDRANGE
+#undef MG_KOKKOS_USE_MDRANGE
 
 namespace MG {
 
@@ -217,7 +217,7 @@ public:
 	    		  _neigh_table};
 
 #ifdef MG_KOKKOS_USE_MDRANGE
-	      Kokkos::Experimental::md_parallel_for(policy, f); // Outer Lambda
+	      Kokkos::parallel_for(policy, f); // Outer Lambda
 #else
 	      Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #endif
@@ -228,7 +228,7 @@ public:
 	    		   _neigh_table};
 
 #ifdef MG_KOKKOS_USE_MDRANGE
-	      Kokkos::Experimental::md_parallel_for(policy, f); // Outer Lambda
+	      Kokkos::parallel_for(policy, f); // Outer Lambda
 #else
 	      Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #endif
@@ -240,7 +240,7 @@ public:
 	    		  _neigh_table};
 
 #ifdef MG_KOKKOS_USE_MDRANGE
-	      Kokkos::Experimental::md_parallel_for(policy, f); // Outer Lambda
+	      Kokkos::parallel_for(policy, f); // Outer Lambda
 #else
 	      Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #endif
@@ -250,7 +250,7 @@ public:
 	    		  _neigh_table };
 
 #ifdef MG_KOKKOS_USE_MDRANGE
-	      Kokkos::Experimental::md_parallel_for(policy, f); // Outer Lambda
+	      Kokkos::parallel_for(policy, f); // Outer Lambda
 #else
 	      Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #endif

@@ -326,7 +326,7 @@ TEST(TestVNode, TestPackSpinor)
   int num_cbsites= info.GetNumCBSites();
   MasterLog(INFO, "Num_cbsites=%d", num_cbsites);
   MasterLog(INFO, "cb_latdims=(%d,%d,%d,%d)", cb_latdims[0], cb_latdims[1],cb_latdims[2],cb_latdims[3]);
-  Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites),[&](int i) { 
+  Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_cbsites),[&](int i) { 
       IndexArray coords;
       IndexToCoords(i,cb_latdims,coords);
       float value=computeLane(coords,cb_latdims);
@@ -352,7 +352,7 @@ TEST(TestVNode, TestPackSpinor)
 
       const LatticeInfo& vinfo = kokkos_spinor.GetInfo();
       int num_vcbsites = vinfo.GetNumCBSites();
-      Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_vcbsites), [=](int i) {
+      Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_vcbsites), [=](int i) {
       for(int color=0; color <3; ++color) { 
       for(int spin=0; spin < 4; ++spin) { 
 	auto vec_data = kokkos_h(i,spin,color);
@@ -367,7 +367,7 @@ TEST(TestVNode, TestPackSpinor)
     });
   LatticeFermion back_spinor=zero;
   KokkosCBVSpinorToQDPLatticeFermion(kokkos_spinor, back_spinor);
-  Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites), [=](int i) {
+  Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_cbsites), [=](int i) {
       for(int color=0; color <3; ++color) {                                                                                             
       for(int spin=0; spin < 4; ++spin) {                                                                                               
       float ref_re = qdp_in.elem(rb[EVEN].siteTable()[i]).elem(spin).elem(color).real();
@@ -410,7 +410,7 @@ TEST(TestVNode, TestPackSpinor2)
   KokkosCBVSpinorToQDPLatticeFermion(kokkos_spinor_o, qdp_out);
 
   for(int cb=EVEN; cb <= ODD; ++cb) { 
-      Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites), [=](int i) {
+      Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_cbsites), [=](int i) {
       for(int color=0; color <3; ++color) {                                                                                             
       for(int spin=0; spin < 4; ++spin) {                                                                                               
       float ref_re = qdp_in.elem(rb[cb].siteTable()[i]).elem(spin).elem(color).real();
@@ -456,7 +456,7 @@ TEST(TestVNode, TestPackHalfSpinor2)
   KokkosCBVSpinor2ToQDPLatticeHalfFermion(kokkos_spinor_o, qdp_out);
 
   for(int cb=EVEN; cb <= ODD; ++cb) { 
-      Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites), [=](int i) {
+      Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_cbsites), [=](int i) {
       for(int color=0; color <3; ++color) {                                                                                             
       for(int spin=0; spin < 2; ++spin) {                                                                                               
       float ref_re = qdp_in.elem(rb[cb].siteTable()[i]).elem(spin).elem(color).real();
@@ -491,7 +491,7 @@ TEST(TestVNode, TestPackGauge)
   MasterLog(INFO, "cb_latdims=(%d,%d,%d,%d)", cb_latdims[0], cb_latdims[1],cb_latdims[2],cb_latdims[3]);
 
   for(int mu=0; mu < 4; ++mu)  {
-    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites),[&](int i) { 
+    Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_cbsites),[&](int i) { 
 	IndexArray coords;
 	IndexToCoords(i,cb_latdims,coords);
 	float value=computeLane(coords,cb_latdims);
@@ -519,7 +519,7 @@ TEST(TestVNode, TestPackGauge)
       const LatticeInfo& vinfo = kokkos_u.GetInfo();
       int num_vcbsites = vinfo.GetNumCBSites();
 
-      Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_vcbsites), [=](int i) {
+      Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_vcbsites), [=](int i) {
 	  for(int dir=0; dir < 4; ++dir) {
 	    for(int color=0; color <3; ++color) { 
 	      for(int color2=0; color2 < 3; ++color2) { 
@@ -541,7 +541,7 @@ TEST(TestVNode, TestPackGauge)
       KokkosCBVGaugeFieldToQDPGaugeField(kokkos_u, u_back);
 
       for(int mu=0; mu < Nd; ++mu) {
-  Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites), [=](int i) {
+  Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_cbsites), [=](int i) {
    
   for(int color=0; color <3; ++color) {                                                                                             
   for(int color2=0; color2 < 3; ++color2) {                                                                                               
@@ -592,7 +592,7 @@ TEST(TestVNode, TestPackGauge2)
   
   for(int mu=0; mu < Nd; ++mu) { 
   for(int cb=EVEN; cb <= ODD; ++cb) { 
-      Kokkos::parallel_for( Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_cbsites), [=](int i) {
+      Kokkos::parallel_for( Kokkos::RangePolicy<HostExec>(0,num_cbsites), [=](int i) {
       for(int color=0; color <3; ++color) {                                                                                             
       for(int color2=0; color2 < 3; ++color2) {                                                                                               
   float ref_re = qdp_in[mu].elem(rb[cb].siteTable()[i]).elem().elem(color,color2).real();
@@ -888,7 +888,7 @@ TEST(TestKokkos, TestDslash)
 
 #endif
 
-	      Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::OpenMP>(0,num_sites),
+	      Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				   [=](int i) {
 				     int qdp_idx = rb[cb].siteTable()[i];
 				     for(int spin=0; spin < 4; ++spin) { 
