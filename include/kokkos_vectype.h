@@ -19,7 +19,7 @@
 #include <immintrin.h>
 #endif
 
-#if defined(MG_USE_CUDA)
+#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
 #include"cuda.h"
 #include "cuda_runtime.h"
 #endif
@@ -91,7 +91,7 @@ template<typename T, int N>
  // THIS IS WHERE WE INTRODUCE SOME NONPORTABILITY
   // ThreadSIMDComplex ***MUST** only be instantiated in 
   // a Kokkos parallel region
-#ifdef MG_USE_CUDA
+#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
   template<typename T, int N> 
   using ThreadSIMDComplex = GPUThreadSIMDComplex<T,N>;
 #else
@@ -103,7 +103,7 @@ template<typename T, int N>
 
 
 
-#ifndef MG_USE_CUDA
+#if ! defined( MG_USE_CUDA ) 
 
 // GENERAL THREADVECTORRANGE
 // T1 must support indexing with operator()

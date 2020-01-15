@@ -21,7 +21,7 @@ using namespace MGTesting;
 using namespace QDP;
 
 
-#ifdef MG_USE_CUDA
+#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP) 
 static constexpr int V = 1;
 #else
 
@@ -109,7 +109,7 @@ TEST(TestKokkos, TestDslashTime)
 					num_blocks *= cb_latdims[1]/y;
 					num_blocks *= cb_latdims[2]/z;
 					num_blocks *= cb_latdims[3]/t;
-#ifdef MG_USE_CUDA
+#if defined( MG_USE_CUDA ) || defined(MG_USE_HIP) 
 					if( x*y*z*t <= 256) { 
 #else
 					if ( num_blocks <= 256) {
@@ -118,7 +118,7 @@ TEST(TestKokkos, TestDslashTime)
 						for(int i=0; i < titers; ++i) {
 						  D(kokkos_spinor_even,gauge_even,kokkos_spinor_odd,isign,{x,y,z,t});
 						}
-#ifdef MG_USE_CUDA
+#if defined(  MG_USE_CUDA ) || defined (MG_USE_HIP )
 						Kokkos::fence();
 #endif
 						auto end_time = std::clock();
@@ -142,7 +142,7 @@ TEST(TestKokkos, TestDslashTime)
 	}
 #else
 
-#ifdef MG_USE_CUDA
+#if defined ( MG_USE_CUDA ) || defined (MG_USE_HIP)
         IndexArray best_blocks={16,4,1,2};
 #else
 	IndexArray best_blocks={4,2,2,16};
@@ -162,7 +162,7 @@ TEST(TestKokkos, TestDslashTime)
 			for(int i=0; i < iters; ++i) {
 				D(kokkos_spinor_even,gauge_even,kokkos_spinor_odd,isign, best_blocks);
 			}
-#ifdef MG_USE_CUDA
+#if defined (MG_USE_CUDA) || defined(MG_USE_HIP) 
 			Kokkos::fence();
 #endif
 			auto end_time = std::clock();

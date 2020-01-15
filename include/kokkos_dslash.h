@@ -342,12 +342,18 @@ private:
      int sites_per_team;
      SiteTable neigh_table;
 
+#if defined (MG_FLAT_PARALLEL_DSLASH)
+     KOKKOS_FORCEINLINE_FUNCTION
+     void operator()( int site ) const {
+
+#else
      KOKKOS_FORCEINLINE_FUNCTION
      void operator()(const TeamHandle& team) const {
 		    const int start_idx = team.league_rank()*sites_per_team;
 		    const int end_idx = start_idx + sites_per_team  < num_sites ? start_idx + sites_per_team : num_sites;
 
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const int site) {
+#endif
 
 		    // Warning: GCC Alignment Attribute!
 		    // Site Sum: Not a true Kokkos View
@@ -415,9 +421,10 @@ private:
 		    	  Stream(s_out(site,color,spin),res_sum(color,spin));
 		      }
 		    }
-		      });
-     }
-
+#if !defined (MG_FLAT_PARALLEL_DSLASH)
+	      });
+#endif 
+      }
 
    };
 
@@ -448,29 +455,49 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	  SpinorView<ST>& s_out = fine_out.GetData();
 	  const int num_sites = _info.GetNumCBSites();
 
+#if !defined (MG_FLAT_PARALLEL_DSLASH)
 	  ThreadExecPolicy policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<ST>::value);
+#endif
 	  if( plus_minus == 1 ) {
 	    if (target_cb == 0 ) {
 	      DslashFunctor<GT,ST,TST,1,0> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team,_neigh_table};
+
+#if defined (MG_FLAT_PARALLEL_DSLASH)
+	Kokkos::parallel_for(num_sites,f);
+#else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+#endif
 	    }
 	    else {
 	      DslashFunctor<GT,ST,TST,1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table};
-	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+
+#if defined (MG_FLAT_PARALLEL_DSLASH)
+	Kokkos::parallel_for(num_sites,f);
+#else
+	     Kokkos::parallel_for(policy, f); // Outer Lambda 
+#endif
 	    }
 	  }
 	  else {
 	    if( target_cb == 0 ) { 
 	      DslashFunctor<GT,ST,TST,-1,0> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table};
+#if defined (MG_FLAT_PARALLEL_DSLASH)
+	Kokkos::parallel_for(num_sites,f);
+#else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+#endif
 	    }
 	    else {
 	      DslashFunctor<GT,ST,TST,-1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table };
+#if defined (MG_FLAT_PARALLEL_DSLASH)
+	Kokkos::parallel_for(num_sites,f);
+#else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+#endif
 	    }
 	  }
 	  

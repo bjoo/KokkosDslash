@@ -21,7 +21,7 @@ using namespace MGTesting;
 using namespace QDP;
 
 
-#ifdef MG_USE_CUDA
+#if defined( MG_USE_CUDA ) || defined ( MG_USE_HIP )
 constexpr static int V = 16;
 #else
         constexpr static int V = 8;
@@ -347,9 +347,8 @@ TEST(TestKokkos, TestDslash)
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
-#ifdef MG_USE_CUDA
+
 	    Kokkos::fence();
-#endif
 	    // double end_time = omp_get_wtime();
 	    auto end_time = std::clock();
 	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
@@ -447,7 +446,7 @@ TEST(TestKokkos, TestDslashVec)
 #endif
 
 
-#if 1
+#if !defined(MG_USE_HIP)
 TEST(TestKokkos, TestDslashVecLonger)
 {
   IndexArray latdims={{16,16,16,32}};
@@ -502,9 +501,7 @@ TEST(TestKokkos, TestDslashVecLonger)
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
-#ifdef MG_USE_CUDA
 	    Kokkos::fence();
-#endif
 
 	    auto end_time = std::clock();
 	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;

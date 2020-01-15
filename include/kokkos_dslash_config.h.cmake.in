@@ -3,8 +3,10 @@
 // Do we have QDP++?
 #cmakedefine HAVE_QDPXX @HAVE_QDPXX@
 
-// Do we have OpenCL ?
+// Do we have Kokkos
 #cmakedefine HAVE_KOKKOS @HAVE_KOKKOS@
+
+#cmakedefine MG_FLAT_PARALLEL_DSLASH
 
 // What is our Default Loglevel (do we need this still ? )
 #cmakedefine MG_DEFAULT_LOGLEVEL @MG_DEFAULT_LOGLEVEL@
@@ -23,3 +25,6 @@
 
 // CUDA
 #cmakedefine MG_USE_CUDA @MG_USE_CUDA@
+
+// HIP
+#cmakedefine MG_USE_HIP @MG_USE_HIP@

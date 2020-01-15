@@ -18,7 +18,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
-#ifndef MG_USE_CUDA
+#if !defined( MG_USE_CUDA ) && !defined(MG_USE_HIP)
 TEST(TestKokkos, Initialization)
 {
 	IndexArray latdims={{8,8,8,8}};

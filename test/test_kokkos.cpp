@@ -1006,7 +1006,7 @@ TEST(TestKokkos, TestDslash)
 #endif
 
 
-#if 1
+#if !defined(MG_USE_HIP)
 
 TEST(TestKokkos, TestDslashVec)
 {
