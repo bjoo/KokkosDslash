@@ -13,7 +13,11 @@
 #include "./kokkos_spinproj.h"
 #include "./kokkos_matvec.h"
 #include "./kokkos_dslash.h"
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
+
+#include <chrono>
 #include <ctime>
 
 using namespace MG;
@@ -344,6 +348,8 @@ TEST(TestKokkos, TestDslash)
 	    MasterLog(INFO, "Timing Dslash: isign == %d", isign);
 	    //double start_time = omp_get_wtime();
 	    auto start_time = std::clock();
+	    //auto start_time = std::chrono::high_resolution_clock::now();
+
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
 	    }
@@ -351,6 +357,7 @@ TEST(TestKokkos, TestDslash)
 	    Kokkos::fence();
 	    // double end_time = omp_get_wtime();
 	    auto end_time = std::clock();
+
 	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 	    
 	    double rfo = 1.0;
@@ -359,7 +366,7 @@ TEST(TestKokkos, TestDslash)
 	    double bytes_out = (1.0+rfo)*static_cast<double>(4*3*2*sizeof(REAL32)*num_sites*iters);
 	    double flops = static_cast<double>(1320.0*num_sites*iters);
 	    
-	    MasterLog(INFO,"sites_per_team=%d Performance: %lf GFLOPS", sites_per_team,flops/(time_taken*1.0e9));
+	    MasterLog(INFO,"sites_per_team=%d time per iter = %lf (usec) Performance: %lf GFLOPS", sites_per_team,time_taken*1.0e6/(double)(iters), flops/(time_taken*1.0e9));
 	    MasterLog(INFO,"sites_per_team=%d Effective BW: %lf GB/sec", sites_per_team,(bytes_in+bytes_out)/(time_taken*1.0e9));
 	    
 	    

@@ -5,7 +5,9 @@
 #include "lattice/nodeinfo.h"
 #include "utils/print_utils.h"
 
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
 
 /* These are for sorting */
 #include <algorithm>

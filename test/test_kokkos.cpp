@@ -944,7 +944,7 @@ TEST(TestKokkos, TestMultHalfSpinor)
 #if 1
 TEST(TestKokkos, TestDslash)
 {
-	IndexArray latdims={{4,4,4,4}};
+	IndexArray latdims={{32,32,32,32}};
 	initQDPXXLattice(latdims);
 	multi1d<LatticeColorMatrix> gauge_in(n_dim);
 	for(int mu=0; mu < n_dim; ++mu) {

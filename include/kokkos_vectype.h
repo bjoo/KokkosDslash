@@ -19,7 +19,7 @@
 #include <immintrin.h>
 #endif
 
-#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
+#if defined(MG_USE_CUDA)
 #include"cuda.h"
 #include "cuda_runtime.h"
 #endif
