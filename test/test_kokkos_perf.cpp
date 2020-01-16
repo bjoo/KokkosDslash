@@ -305,7 +305,7 @@ TEST(TestKokkos, TestMultHalfSpinor)
 TEST(TestKokkos, TestDslash)
 {
   IndexArray latdims={{32,32,32,32}};
-	int iters = 100;
+	int iters = 800;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());
@@ -347,18 +347,15 @@ TEST(TestKokkos, TestDslash)
 	   int isign=1; 
 	    MasterLog(INFO, "Timing Dslash: isign == %d", isign);
 	    //double start_time = omp_get_wtime();
-	    auto start_time = std::clock();
+	   // auto start_time = std::clock();
 	    //auto start_time = std::chrono::high_resolution_clock::now();
-
+	    Kokkos::Timer timer;
+	    timer.reset();
 	    for(int i=0; i < iters; ++i) {
 	      D(kokkos_spinor_in,kokkos_gauge,kokkos_spinor_out,isign);
+	      Kokkos::fence();
 	    }
-
-	    Kokkos::fence();
-	    // double end_time = omp_get_wtime();
-	    auto end_time = std::clock();
-
-	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
+	    double time_taken = timer.seconds();
 	    
 	    double rfo = 1.0;
 	    double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);
