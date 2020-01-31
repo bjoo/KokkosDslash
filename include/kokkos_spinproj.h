@@ -151,7 +151,8 @@ void KokkosProjectLattice(const KokkosCBFineSpinor<T,4>& kokkos_in,
 	const SpinorView<T>& spinor_in = kokkos_in.GetData();
 	HalfSpinorView<T>& hspinor_out = kokkos_hspinor_out.GetData();
 
-#ifndef MG_FLAT_PARALLEL_DSLASH
+//#ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 	const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<T>::value);
 	  Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
@@ -186,7 +187,8 @@ void KokkosProjectLattice(const KokkosCBFineSpinor<T,4>& kokkos_in,
 		}
 		  });
 
-#ifndef MG_FLAT_PARALLEL_DSLASH 
+//#ifndef MG_FLAT_PARALLEL_DSLASH 
+#if 0
 	    });
 #endif
 }
@@ -374,7 +376,8 @@ void KokkosReconsLattice(const KokkosCBFineSpinor<T,2>& kokkos_hspinor_in,
 	SpinorView<T>& spinor_out = kokkos_spinor_out.GetData();
 	const HalfSpinorView<T>& hspinor_in_view = kokkos_hspinor_in.GetData();
 
-#ifndef MG_FLAT_PARALLEL_DSLASH
+// #ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 	const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<T>::value);
 	Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
@@ -434,7 +437,8 @@ void KokkosReconsLattice(const KokkosCBFineSpinor<T,2>& kokkos_hspinor_in,
 
 	});
 
-#ifndef MG_FLAT_PARALLEL_DSLASH
+// #ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 	  });
 #endif
 

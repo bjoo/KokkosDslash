@@ -7,6 +7,7 @@
 #cmakedefine HAVE_KOKKOS @HAVE_KOKKOS@
 
 #cmakedefine MG_FLAT_PARALLEL_DSLASH
+#cmakedefine MG_KOKKOS_USE_MDRANGE
 
 // What is our Default Loglevel (do we need this still ? )
 #cmakedefine MG_DEFAULT_LOGLEVEL @MG_DEFAULT_LOGLEVEL@

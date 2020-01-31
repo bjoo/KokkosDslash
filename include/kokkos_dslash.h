@@ -124,6 +124,11 @@ public:
 #endif
 	}
 
+	  KOKKOS_FORCEINLINE_FUNCTION
+	  	int  coords_to_idx(const int& xcb, const int& y, const int& z, const int& t) const
+	  	{
+	  	  return xcb+_n_xh*(y + _n_y*(z + _n_z*t));
+	  	}
 
 #if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
 	KOKKOS_INLINE_FUNCTION
@@ -346,6 +351,13 @@ private:
      KOKKOS_FORCEINLINE_FUNCTION
      void operator()( int site ) const {
 
+#elif defined (MG_KOKKOS_USE_MDRANGE)
+     KOKKOS_FORCEINLINE_FUNCTION
+     void operator()(const int& xcb, const int& y, const int& z, const int& t) const
+     {
+
+       int site = neigh_table.coords_to_idx(xcb,y,z,t);
+
 #else
      KOKKOS_FORCEINLINE_FUNCTION
      void operator()(const TeamHandle& team) const {
@@ -355,7 +367,7 @@ private:
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const int site) {
 #endif
 
-		    // Warning: GCC Alignment Attribute!
+		     // Warning: GCC Alignment Attribute!
 		    // Site Sum: Not a true Kokkos View
 			SpinorSiteView<TST> res_sum;// __attribute__((aligned(64)));
 			
@@ -421,7 +433,7 @@ private:
 		    	  Stream(s_out(site,color,spin),res_sum(color,spin));
 		      }
 		    }
-#if !defined (MG_FLAT_PARALLEL_DSLASH)
+#if !defined (MG_FLAT_PARALLEL_DSLASH) && !defined(MG_KOKKOS_USE_MDRANGE)
 	      });
 #endif 
       }
@@ -441,7 +453,8 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	  _neigh_table(info.GetCBLatticeDimensions()[0],info.GetCBLatticeDimensions()[1],info.GetCBLatticeDimensions()[2],info.GetCBLatticeDimensions()[3]),
 	  _sites_per_team(sites_per_team)
 	  {}
-	
+
+#ifndef MG_KOKKOS_USE_MDRANGE	
 	void operator()(const KokkosCBFineSpinor<ST,4>& fine_in,
 		      const KokkosFineGaugeField<GT>& gauge_in,
 		      KokkosCBFineSpinor<ST,4>& fine_out,
@@ -503,6 +516,55 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	  
 	}
 
+#else
+	void operator()(const KokkosCBFineSpinor<ST,4>& fine_in,
+		      const KokkosFineGaugeField<GT>& gauge_in,
+		      KokkosCBFineSpinor<ST,4>& fine_out,
+			int plus_minus, const IndexArray& blocks) const
+	{
+	  int source_cb = fine_in.GetCB();
+	  int target_cb = (source_cb == EVEN) ? ODD : EVEN;
+	  const SpinorView<ST>& s_in = fine_in.GetData();
+	  const GaugeView<GT>& g_in_src_cb = (gauge_in(source_cb)).GetData();
+	  const GaugeView<GT>&  g_in_target_cb = (gauge_in(target_cb)).GetData();
+	  SpinorView<ST>& s_out = fine_out.GetData();
+	  IndexArray cb_latdims = _info.GetCBLatticeDimensions();
+	  const int num_sites = _info.GetNumCBSites();
+	  MDPolicy policy({0,0,0,0},
+			  {cb_latdims[0],cb_latdims[1],cb_latdims[2],cb_latdims[3]},
+			  {blocks[0],blocks[1],blocks[2],blocks[3]}
+			  );
+
+	  if( plus_minus == 1 ) {
+	    if (target_cb == 0 ) {
+	      DslashFunctor<GT,ST,TST,1,0> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
+	    		  num_sites, _sites_per_team,_neigh_table};
+
+
+	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+	    }
+	    else {
+	      DslashFunctor<GT,ST,TST,1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
+	    		  num_sites, _sites_per_team, _neigh_table};
+
+	     Kokkos::parallel_for(policy, f); // Outer Lambda 
+	    }
+	  }
+	  else {
+	    if( target_cb == 0 ) { 
+	      DslashFunctor<GT,ST,TST,-1,0> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
+	    		  num_sites, _sites_per_team, _neigh_table};
+	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+	    }
+	    else {
+	      DslashFunctor<GT,ST,TST,-1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
+	    		  num_sites, _sites_per_team, _neigh_table };
+	      Kokkos::parallel_for(policy, f); // Outer Lambda 
+	    }
+	  }
+	  
+	}
+#endif
 };
 
 

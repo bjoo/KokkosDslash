@@ -941,7 +941,7 @@ TEST(TestKokkos, TestMultHalfSpinor)
 
 #endif
 
-#if 1
+#if defined(MG_FLAT_PARALLEL_DISPATCH)
 TEST(TestKokkos, TestDslash)
 {
 	IndexArray latdims={{32,32,32,32}};
@@ -1005,6 +1005,82 @@ TEST(TestKokkos, TestDslash)
 }
 #endif
 
+#ifdef MG_KOKKOS_USE_MDRANGE
+TEST(TestKokkos, TestDslashMDRange)
+{
+	IndexArray latdims={{32,32,32,32}};
+	initQDPXXLattice(latdims);
+	multi1d<LatticeColorMatrix> gauge_in(n_dim);
+	for(int mu=0; mu < n_dim; ++mu) {
+		gaussian(gauge_in[mu]);
+		reunit(gauge_in[mu]);
+	}
+
+	LatticeFermion psi_in=zero;
+	gaussian(psi_in);
+
+	LatticeInfo info(latdims,4,3,NodeInfo());
+	LatticeInfo hinfo(latdims,2,3,NodeInfo());
+
+	KokkosCBFineSpinor<MGComplex<REAL>,4> kokkos_spinor_even(info,EVEN);
+	KokkosCBFineSpinor<MGComplex<REAL>,4> kokkos_spinor_odd(info,ODD);
+	KokkosFineGaugeField<MGComplex<REAL>>  kokkos_gauge(info);
+
+
+	// Import Gauge Field
+	QDPGaugeFieldToKokkosGaugeField(gauge_in, kokkos_gauge);
+	int per_team=32; // Arbitraty
+	KokkosDslash<MGComplex<REAL>,MGComplex<REAL>,MGComplex<REAL>> D(info,per_team);
+
+	IndexArray blockings[6] = { { 1,1,1,1 },
+                                    { 2,2,2,4 },
+                                    { 4,4,1,2 },
+                                    { 4,2,8,4 },
+                                    { 8,4,1,4 },
+                                    { 16,4,1,1} };
+
+	for(int b=0; b<6; ++b) {
+	  IndexType bx = blockings[b][0];
+	  IndexType by = blockings[b][1];
+	  IndexType bz = blockings[b][2];
+	  IndexType bt = blockings[b][3];
+
+	  if (bx*by*bz*bt > 256 ) continue;
+
+
+	LatticeFermion psi_out = zero;
+	LatticeFermion  kokkos_out=zero;
+	for(int cb=0; cb < 2; ++cb) {
+	  KokkosCBFineSpinor<MGComplex<REAL>,4>& out_spinor = (cb == EVEN) ? kokkos_spinor_even : kokkos_spinor_odd;
+	  KokkosCBFineSpinor<MGComplex<REAL>,4>& in_spinor = (cb == EVEN) ? kokkos_spinor_odd: kokkos_spinor_even;
+	  
+	    for(int isign=-1; isign < 2; isign+=2) {
+	      
+	      // In the Host
+	      psi_out = zero;
+	      
+	      // Target cb=1 for now.
+	      dslash(psi_out,gauge_in,psi_in,isign,cb);
+	      
+	      QDPLatticeFermionToKokkosCBSpinor(psi_in, in_spinor);
+	      
+	      MasterLog(INFO, "D with blocking=(%d,%d,%d,%d),",bx,by,bz,bt);
+	      D(in_spinor,kokkos_gauge,out_spinor,isign,{bx,by,bz,by});
+	      
+	      kokkos_out = zero;
+	      KokkosCBSpinorToQDPLatticeFermion(out_spinor, kokkos_out);
+	      
+	      // Check Diff on Odd
+	      psi_out[rb[cb]] -= kokkos_out;
+	      double norm_diff = toDouble(sqrt(norm2(psi_out,rb[cb])));
+	      
+	      MasterLog(INFO, "norm_diff = %lf", norm_diff);
+	      ASSERT_LT( norm_diff, 1.0e-5);
+	    }
+	}
+	}// blockings
+}
+#endif
 
 #if !defined(MG_USE_HIP)
 

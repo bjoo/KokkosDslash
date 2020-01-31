@@ -93,7 +93,8 @@ namespace MG
 		GaugeView<GT> u = u_in.GetData();
 		HalfSpinorView<ST> hspinor_out_view = hspinor_out.GetData();
 
-#ifndef MG_FLAT_PARALLEL_DSLASH
+// #ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 		const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<ST>::value);
 		Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
@@ -121,7 +122,8 @@ namespace MG
 					}
 				}
 		});
-#ifndef MG_FLAT_PARALLEL_DSLASH
+//#ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 		  });
 #endif
 
@@ -142,7 +144,8 @@ namespace MG
 		HalfSpinorView<ST> hspinor_out_view = hspinor_out.GetData();
 		GaugeView<GT> u = u_in.GetData();
 
-#ifndef MG_FLAT_PARALLEL_DSLASH
+//#ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 		const MG::ThreadExecPolicy  policy(num_sites/_sites_per_team,Kokkos::AUTO(),Veclen<ST>::value);
 		Kokkos::parallel_for(policy, KOKKOS_LAMBDA (const TeamHandle&  team) {
 		    const int start_idx = team.league_rank()*_sites_per_team;
@@ -169,7 +172,8 @@ namespace MG
 				}
 			}
 		});
-#ifndef MG_FLAT_PARALLEL_DSLASH
+// #ifndef MG_FLAT_PARALLEL_DSLASH
+#if 0
 	});
 #endif
 
