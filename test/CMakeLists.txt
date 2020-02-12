@@ -47,12 +47,14 @@ endmacro()
 # Here TESTNAME is test1
 # and ARGN is test1.cpp
 package_add_test(test_kokkos test_kokkos.cpp)
-package_add_test(test_kokkos_vnode test_kokkos_vnode.cpp)
-package_add_test(test_kokkos_vperf  test_kokkos_vperf.cpp)
-package_add_test(test_kokkos_vectype test_kokkos_vectype.cpp)
-package_add_test(test_kokkos_perf test_kokkos_perf.cpp)
+
+#package_add_test(test_kokkos_vnode test_kokkos_vnode.cpp)
+#package_add_test(test_kokkos_vperf  test_kokkos_vperf.cpp)
+#package_add_test(test_kokkos_vectype test_kokkos_vectype.cpp)
 
 if( MG_KOKKOS_USE_MDRANGE )
 package_add_test(test_kokkos_perf_md test_kokkos_perf_md.cpp)
+else()
+package_add_test(test_kokkos_perf test_kokkos_perf.cpp)
 endif()
 

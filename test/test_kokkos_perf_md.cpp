@@ -28,7 +28,7 @@ using namespace QDP;
 TEST(TestKokkos, TestDslashTime)
 {
 	IndexArray latdims={{32,32,32,32}};
-	int iters=10; 
+	int iters=200; 
 
 	initQDPXXLattice(latdims);
 	multi1d<LatticeColorMatrix> gauge_in(n_dim);
@@ -67,7 +67,7 @@ TEST(TestKokkos, TestDslashTime)
 	QDPLatticeFermionToKokkosCBSpinor(psi_in, in_spinor);
 
 	Kokkos::Timer timer;
-#if 0
+#if 1
 	int titers=50;
 	double best_flops = 0;
 	IndexArray best_blocks={1,1,1,1};
