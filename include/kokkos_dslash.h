@@ -547,7 +547,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	      DslashFunctor<GT,ST,TST,1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table};
 
-	     Kokkos::parallel_for(policy, f); // Outer Lambda 
+	      Kokkos::parallel_for(policy, f); // Outer Lambda 
 	    }
 	  }
 	  else {
@@ -559,6 +559,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	    else {
 	      DslashFunctor<GT,ST,TST,-1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table };
+
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
 	    }
 	  }

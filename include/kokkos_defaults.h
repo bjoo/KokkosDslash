@@ -57,15 +57,15 @@ using TeamHandle =  ThreadExecPolicy::member_type;
 using VectorPolicy = Kokkos::Impl::ThreadVectorRangeBoundariesStruct<int,TeamHandle>;
 #endif
 
-#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
+#if defined(MG_USE_CUDA)
   // Try an N-dimensional threading policy for cache blocking
  using MDPolicy =  Kokkos::Experimental::MDRangePolicy<Kokkos::Experimental::Rank<4,
-		 Kokkos::Experimental::Iterate::Left,Kokkos::Experimental::Iterate::Left>, Kokkos::LaunchBounds<512,1>>;
+   Kokkos::Experimental::Iterate::Left,Kokkos::Experimental::Iterate::Left>, Kokkos::LaunchBounds<512,1>>;
 
-#else 
-  // Try an N-dimensional threading policy for cache blocking
- using MDPolicy =  Kokkos::Experimental::MDRangePolicy<Kokkos::Experimental::Rank<4,
-		 Kokkos::Experimental::Iterate::Left,Kokkos::Experimental::Iterate::Left>>;
+#else
+ // Try an N-dimensional threading policy for cache blocking
+ using MDPolicy =  Kokkos::MDRangePolicy<Kokkos::Rank<4,
+   Kokkos::Iterate::Left,Kokkos::Iterate::Left>>;
 
 #endif  
 }

@@ -305,7 +305,7 @@ TEST(TestKokkos, TestMultHalfSpinor)
 TEST(TestKokkos, TestDslash)
 {
   IndexArray latdims={{32,32,32,32}};
-	int iters = 800;
+	int iters = 10;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());

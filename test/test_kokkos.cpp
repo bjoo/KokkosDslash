@@ -1065,7 +1065,7 @@ TEST(TestKokkos, TestDslashMDRange)
 	      QDPLatticeFermionToKokkosCBSpinor(psi_in, in_spinor);
 	      
 	      MasterLog(INFO, "D with blocking=(%d,%d,%d,%d),",bx,by,bz,bt);
-	      D(in_spinor,kokkos_gauge,out_spinor,isign,{bx,by,bz,by});
+	      D(in_spinor,kokkos_gauge,out_spinor,isign,{bx,by,bz,bt});
 	      
 	      kokkos_out = zero;
 	      KokkosCBSpinorToQDPLatticeFermion(out_spinor, kokkos_out);
