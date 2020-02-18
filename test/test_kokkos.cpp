@@ -393,7 +393,7 @@ KokkosProjectLattice<MGComplex<REAL>,MGComplex<REAL>,1,-1>(kokkos_in,kokkos_hspi
 }
 #endif
 
-#ifndef MG_USE_HIP
+#if !defined( MG_USE_HIP ) && !defined( MG_USE_OPENMP_TARGET) 
 TEST(TestKokkos, TestSpinProjectVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -585,7 +585,7 @@ TEST(TestKokkos, TestSpinRecons)
 #endif
 
 
-#ifndef MG_USE_HIP
+#if !defined( MG_USE_HIP ) && !defined( MG_USE_OPENMP_TARGET)
 TEST(TestKokkos, TestSpinReconsVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -1082,7 +1082,7 @@ TEST(TestKokkos, TestDslashMDRange)
 }
 #endif
 
-#if !defined(MG_USE_HIP)
+#if !defined(MG_USE_HIP) && !defined(MG_USE_OPENMP_TARGET)
 
 TEST(TestKokkos, TestDslashVec)
 {

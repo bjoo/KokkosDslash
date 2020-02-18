@@ -11,14 +11,14 @@ set_target_properties(gmock_main PROPERTIES FOLDER extern)
 
 add_library( testutils qdpxx_utils.h qdpxx_latticeinit.h qdpxx_latticeinit.cpp
     	reunit.cpp test_env.cpp dslashm_w.cpp )
-target_link_libraries( testutils libmg qdp kokkos gtest ) 
+target_link_libraries( testutils libmg qdp Kokkos::kokkos gtest ) 
     	
-target_include_directories(testutils PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(testutils PUBLIC "${CMAKE_BINARY_DIR}/include")
-target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/core/src")
-target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/containers/src")
-target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
-target_include_directories(testutils PUBLIC "${Kokkos_BINARY_DIR}")
+#target_include_directories(testutils PUBLIC "${CMAKE_SOURCE_DIR}/include")
+#target_include_directories(testutils PUBLIC "${CMAKE_BINARY_DIR}/include")
+#target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/core/src")
+#target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/containers/src")
+#target_include_directories(testutils PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
+#target_include_directories(testutils PUBLIC "${Kokkos_BINARY_DIR}")
     	
 # This macro takes the testname and atts an executable from the argumnets
 # (ARGN is every argument after the listed one) which allows you to pass a list
@@ -27,12 +27,12 @@ macro(package_add_test TESTNAME)
     # Make the executable
     add_executable(${TESTNAME} ${ARGN})
 
-   target_include_directories(${TESTNAME} PUBLIC "${CMAKE_SOURCE_DIR}/include")
-   target_include_directories(${TESTNAME} PUBLIC "${CMAKE_BINARY_DIR}/include")
-   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/core/src")
-   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/containers/src")
-   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
-   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_BINARY_DIR}")
+#   target_include_directories(${TESTNAME} PUBLIC "${CMAKE_SOURCE_DIR}/include")
+#   target_include_directories(${TESTNAME} PUBLIC "${CMAKE_BINARY_DIR}/include")
+#   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/core/src")
+#   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/containers/src")
+#   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
+#   target_include_directories(${TESTNAME} PUBLIC "${Kokkos_BINARY_DIR}")
 
     # Add on the gtest libs
     target_link_libraries(${TESTNAME} testutils )

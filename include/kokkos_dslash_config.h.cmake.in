@@ -29,3 +29,6 @@
 
 // HIP
 #cmakedefine MG_USE_HIP @MG_USE_HIP@
+
+// OpenMP Target
+#cmakedefine MG_USE_OPENMP_TARGET @MG_USE_OPENMP_TARGET@
