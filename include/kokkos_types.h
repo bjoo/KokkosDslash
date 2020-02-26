@@ -68,7 +68,7 @@ namespace MG
 			return _cb_data;
 		}
 
-	private:
+//	private:
 		DataType _cb_data;
 		const LatticeInfo& _info;
 		const IndexType _cb;
@@ -115,7 +115,7 @@ namespace MG
 		const LatticeInfo& GetInfo() const {
 				return _info;
 		}
-	private:
+	// private:
 		DataType _cb_gauge_data;
 		const LatticeInfo& _info;
 		IndexType _cb;
@@ -123,12 +123,8 @@ namespace MG
 
 	template<typename T>
 	class KokkosFineGaugeField {
-	private:
-		const LatticeInfo& _info;
-		KokkosCBFineGaugeField<T>  _gauge_data_even;
-		KokkosCBFineGaugeField<T>  _gauge_data_odd;
 	public:
-	KokkosFineGaugeField(const LatticeInfo& info) :  _info(info), _gauge_data_even(info,EVEN), _gauge_data_odd(info,ODD) {
+	        KokkosFineGaugeField(const LatticeInfo& info) :  _info(info), _gauge_data_even(info,EVEN), _gauge_data_odd(info,ODD) {
 		}
 		const KokkosCBFineGaugeField<T>& operator()(IndexType cb) const
 		{
@@ -140,6 +136,11 @@ namespace MG
 			return (cb == EVEN) ? _gauge_data_even : _gauge_data_odd;
 			//return *(_gauge_data[cb]);
 		}
+       //private:
+                const LatticeInfo& _info;
+                KokkosCBFineGaugeField<T>  _gauge_data_even;
+                KokkosCBFineGaugeField<T>  _gauge_data_odd;
+
 	};
 
 	template<typename T>

@@ -30,6 +30,28 @@ TEST(TestKokkos, TestLatticeInitialization)
 }
 #endif
 
+TEST(TestKokkos, TestKokkosBasic)
+{
+   // This is shared space on host/device
+   // so we can access it in both memory spaces.
+   Kokkos::View<float[1024],Kokkos::Experimental::SYCLHostUSMSpace> a("a");
+
+
+   for(int i=0; i < 1024; ++i) { 
+	   a(i) = static_cast<float>(i);
+   }
+
+   Kokkos::parallel_for(1024, [=](const int i) {
+	   a(i) *= static_cast<float>(2);
+   });
+
+   for(int i=0; i < 1024; ++i) { 
+	ASSERT_FLOAT_EQ( static_cast<float>(2*i), a(i) );
+   }
+  
+   
+}
+
 #if 0
 TEST(TestKokkos, TestSpinorInitialization)
 {
@@ -249,7 +271,7 @@ TEST(TestKokkos, TestQDPCBHalfSpinorImportExportVec)
 #endif
 
 
-#if 1
+#if 0
 TEST(TestKokkos, TestSpinProject)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -393,7 +415,8 @@ KokkosProjectLattice<MGComplex<REAL>,MGComplex<REAL>,1,-1>(kokkos_in,kokkos_hspi
 }
 #endif
 
-#if !defined( MG_USE_HIP ) && !defined( MG_USE_OPENMP_TARGET) 
+//#if !defined( MG_USE_HIP ) && !defined( MG_USE_SYCL)  && !defined( MG_USE_OPENMP_TARGET) 
+#if 0
 TEST(TestKokkos, TestSpinProjectVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -439,7 +462,7 @@ TEST(TestKokkos, TestSpinProjectVec)
 }
 #endif
 
-#if 1
+#if 0
 TEST(TestKokkos, TestSpinRecons)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -585,7 +608,8 @@ TEST(TestKokkos, TestSpinRecons)
 #endif
 
 
-#if !defined( MG_USE_HIP ) && !defined( MG_USE_OPENMP_TARGET)
+//#if !defined( MG_USE_HIP ) && !defined(MG_USE_SYCL) && !defined( MG_USE_OPENMP_TARGET)
+#if 0
 TEST(TestKokkos, TestSpinReconsVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -859,7 +883,7 @@ TEST(TestKokkos, TestQDPGaugeFIeldImportExport)
 #endif
 
 
-#if 1
+#if 0
 TEST(TestKokkos, TestMultHalfSpinor)
 {
 	IndexArray latdims={{4,4,4,4}};
@@ -941,7 +965,9 @@ TEST(TestKokkos, TestMultHalfSpinor)
 
 #endif
 
-#if defined(MG_FLAT_PARALLEL_DISPATCH)
+//#if defined(MG_FLAT_PARALLEL_DISPATCH)
+
+#if 1
 TEST(TestKokkos, TestDslash)
 {
 	IndexArray latdims={{32,32,32,32}};
@@ -1005,7 +1031,8 @@ TEST(TestKokkos, TestDslash)
 }
 #endif
 
-#ifdef MG_KOKKOS_USE_MDRANGE
+//#ifdef MG_KOKKOS_USE_MDRANGE
+#if 0
 TEST(TestKokkos, TestDslashMDRange)
 {
 	IndexArray latdims={{32,32,32,32}};
@@ -1082,8 +1109,8 @@ TEST(TestKokkos, TestDslashMDRange)
 }
 #endif
 
-#if !defined(MG_USE_HIP) && !defined(MG_USE_OPENMP_TARGET)
-
+//#if !defined(MG_USE_HIP) && !defined(MG_USE_SYCL) && !defined(MG_USE_OPENMP_TARGET)
+#if 0
 TEST(TestKokkos, TestDslashVec)
 {
 	IndexArray latdims={{4,4,4,4}};

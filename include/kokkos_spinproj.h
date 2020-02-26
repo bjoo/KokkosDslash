@@ -159,7 +159,7 @@ void KokkosProjectLattice(const KokkosCBFineSpinor<T,4>& kokkos_in,
 		    const int end_idx = start_idx + _sites_per_team  < num_sites ? start_idx + _sites_per_team : num_sites;
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const int i) {
 #else
-	Kokkos::parallel_for(num_sites, KOKKOS_LAMBDA(const int i) {
+	Kokkos::parallel_for(num_sites,KOKKOS_LAMBDA(const int i) {
 #endif
 			HalfSpinorSiteView<T2> res;
 

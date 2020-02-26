@@ -32,3 +32,6 @@
 
 // OpenMP Target
 #cmakedefine MG_USE_OPENMP_TARGET @MG_USE_OPENMP_TARGET@
+
+// SYCL Target
+#cmakedefine MG_USE_SYCL

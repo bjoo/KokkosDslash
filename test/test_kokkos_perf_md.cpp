@@ -81,7 +81,7 @@ TEST(TestKokkos, TestDslashTime)
 					num_blocks *= cb_latdims[1]/y;
 					num_blocks *= cb_latdims[2]/z;
 					num_blocks *= cb_latdims[3]/t;
-#if defined( MG_USE_CUDA ) || defined(MG_USE_HIP) 
+#if defined( MG_USE_CUDA ) || defined(MG_USE_HIP) || defined(MG_USE_SYCL) || defined(MG_USE_OPENMP_TARGET)
 					if( x*y*z*t <= 256) { 
 #else
 					if ( num_blocks <= 256) {
@@ -91,7 +91,7 @@ TEST(TestKokkos, TestDslashTime)
 					    D(in_spinor,kokkos_gauge,out_spinor,isign,{x,y,z,t});
 					  }
 					  
-#if defined(  MG_USE_CUDA ) || defined (MG_USE_HIP )
+#if defined(  MG_USE_CUDA ) || defined (MG_USE_HIP) || defined(MG_USE_OPENMP_TARGET) || defined(MG_USE_SYCL)
 					  Kokkos::fence();
 #endif
 					  double time_taken = timer.seconds();
@@ -114,7 +114,7 @@ TEST(TestKokkos, TestDslashTime)
 		}
 #else
 
-#if defined ( MG_USE_CUDA ) || defined (MG_USE_HIP)
+#if defined ( MG_USE_CUDA ) || defined (MG_USE_HIP) || defined(MG_USE_OPENMP_TARGET) || defined(MG_USE_SYCL)
 		IndexArray best_blocks={16,16,1,1};
 #else
 	IndexArray best_blocks={4,2,2,16};
@@ -134,7 +134,7 @@ TEST(TestKokkos, TestDslashTime)
 	  for(int i=0; i < iters; ++i) {
 	    D(in_spinor,kokkos_gauge,out_spinor,isign,best_blocks);
 	  }
-#if defined (MG_USE_CUDA) || defined(MG_USE_HIP) 
+#if defined (MG_USE_CUDA) || defined(MG_USE_HIP) || defined(MG_USE_SYCL) || defined(MG_USE_OPENMP)
 	  //	  Kokkos::fence();
 #endif
 	  

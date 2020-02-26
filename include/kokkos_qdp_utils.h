@@ -52,6 +52,7 @@ namespace MG
 		);
 
 		Kokkos::deep_copy(kokkos_out.GetData(), h_out);
+		// fix me
 	}
 
 	// QDP N-vecor
@@ -95,6 +96,7 @@ namespace MG
 		);
 
 		Kokkos::deep_copy(kokkos_out.GetData(), h_out);
+
 	}
 
 	// Single QDP++ vector
@@ -116,7 +118,8 @@ namespace MG
 
 		auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 		Kokkos::deep_copy( h_in, kokkos_in.GetData() );
-
+		// Fic this.
+		
 		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {
 
@@ -156,6 +159,7 @@ namespace MG
 
 		auto h_in = Kokkos::create_mirror_view( kokkos_in.GetData() );
 		Kokkos::deep_copy( h_in, kokkos_in.GetData() );
+		// Fix this
 
 		Kokkos::parallel_for(Kokkos::RangePolicy<HostExec>(0,num_sites),
 				[&](int i) {

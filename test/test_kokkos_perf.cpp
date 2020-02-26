@@ -25,7 +25,7 @@ using namespace MGTesting;
 using namespace QDP;
 
 
-#if defined( MG_USE_CUDA ) || defined ( MG_USE_HIP )
+#if defined( MG_USE_CUDA ) || defined ( MG_USE_HIP ) ||defined(MG_USE_SYCL)
 constexpr static int V = 16;
 #else
         constexpr static int V = 8;
@@ -450,7 +450,7 @@ TEST(TestKokkos, TestDslashVec)
 #endif
 
 
-#if !defined(MG_USE_HIP)
+#if !defined(MG_USE_HIP) && !defined(MG_USE_OPENMP_TARGET) && !defined(MG_USE_SYCL)
 TEST(TestKokkos, TestDslashVecLonger)
 {
   IndexArray latdims={{16,16,16,32}};

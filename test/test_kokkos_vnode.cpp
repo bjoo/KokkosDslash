@@ -26,7 +26,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
-#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP)
+#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP) || defined(MG_USE_SYCL) || defined(MG_USE_OPENMP_TARGET)
 static constexpr int VectorLength=1;
 #else
 
@@ -814,7 +814,7 @@ TEST(TestKokkos, TestDslash)
 	KokkosVDslash<VN,MGComplex<REAL32>,MGComplex<REAL32>,
 		      SIMDComplex<REAL32,VN::VecLen>,SIMDComplex<REAL32,VN::VecLen>> D(kokkos_spinor_even.GetInfo());
 
-#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP )
+#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP ) || defined(MG_USE_SYCL) || defined(MG_USE_OPENMP_TARGET)
 	IndexArray blockings[6] = { { 1,1,1,1 },
 				    { 2,2,2,4 },
 				    { 4,4,1,2 },
@@ -837,7 +837,7 @@ TEST(TestKokkos, TestDslash)
            IndexType bz=blockings[b][2];
            IndexType bt=blockings[b][3];
 
-#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP )
+#if defined( MG_USE_CUDA ) || defined( MG_USE_HIP ) || defined(MG_USE_OPENMP_TARGET) || defined(MG_USE_SYCL)
            if( bx*by*bz*bt > 256 ) continue;
 #endif
 
