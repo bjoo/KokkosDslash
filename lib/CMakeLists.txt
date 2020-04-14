@@ -33,8 +33,6 @@ target_include_directories(libmg PUBLIC "${Kokkos_SOURCE_DIR}/algorithms/src")
 target_include_directories(libmg PUBLIC "${Kokkos_BINARY_DIR}")
 	
 
-set_target_properties( libmg PROPERTIES CXX_STANDARD 11 )
-set_target_properties( libmg PROPERTIES CXX_EXTENSIONS OFF )
 
 
 # Link any dependent libraries
