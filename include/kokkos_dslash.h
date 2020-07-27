@@ -477,7 +477,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	    		  num_sites, _sites_per_team,_neigh_table};
 
 #if defined (MG_FLAT_PARALLEL_DSLASH)
-	Kokkos::parallel_for(num_sites,f);
+	Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
 #endif
@@ -487,7 +487,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	    		  num_sites, _sites_per_team, _neigh_table};
 
 #if defined (MG_FLAT_PARALLEL_DSLASH)
-	Kokkos::parallel_for(num_sites,f);
+	Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #else
 	     Kokkos::parallel_for(policy, f); // Outer Lambda 
 #endif
@@ -498,7 +498,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	      DslashFunctor<GT,ST,TST,-1,0> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table};
 #if defined (MG_FLAT_PARALLEL_DSLASH)
-	Kokkos::parallel_for(num_sites,f);
+	Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
 #endif
@@ -507,7 +507,7 @@ KokkosDslash(const LatticeInfo& info, int sites_per_team=1) : _info(info),
 	      DslashFunctor<GT,ST,TST,-1,1> f = {s_in, g_in_src_cb, g_in_target_cb, s_out,
 	    		  num_sites, _sites_per_team, _neigh_table };
 #if defined (MG_FLAT_PARALLEL_DSLASH)
-	Kokkos::parallel_for(num_sites,f);
+	Kokkos::parallel_for(SimpleRange(0,num_sites),f);
 #else
 	      Kokkos::parallel_for(policy, f); // Outer Lambda 
 #endif

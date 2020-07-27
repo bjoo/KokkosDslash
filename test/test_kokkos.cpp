@@ -393,7 +393,7 @@ KokkosProjectLattice<MGComplex<REAL>,MGComplex<REAL>,1,-1>(kokkos_in,kokkos_hspi
 }
 #endif
 
-#ifndef MG_USE_HIP
+#if !defined( MG_USE_HIP ) && ! defined( MG_USE_OPENMP_TARGET)
 TEST(TestKokkos, TestSpinProjectVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -585,7 +585,7 @@ TEST(TestKokkos, TestSpinRecons)
 #endif
 
 
-#ifndef MG_USE_HIP
+#if !defined MG_USE_HIP && !defined(MG_USE_OPENMP_TARGET)
 TEST(TestKokkos, TestSpinReconsVec)
 {
 	IndexArray latdims={{4,2,2,4}};
@@ -941,10 +941,10 @@ TEST(TestKokkos, TestMultHalfSpinor)
 
 #endif
 
-#if defined(MG_FLAT_PARALLEL_DISPATCH)
+#if defined(MG_FLAT_PARALLEL_DSLASH)
 TEST(TestKokkos, TestDslash)
 {
-	IndexArray latdims={{32,32,32,32}};
+	IndexArray latdims={{16,16,16,16}};
 	initQDPXXLattice(latdims);
 	multi1d<LatticeColorMatrix> gauge_in(n_dim);
 	for(int mu=0; mu < n_dim; ++mu) {
@@ -1082,7 +1082,7 @@ TEST(TestKokkos, TestDslashMDRange)
 }
 #endif
 
-#if !defined(MG_USE_HIP)
+#if !defined(MG_USE_HIP) && !defined(MG_USE_OPENMP_TARGET)
 
 TEST(TestKokkos, TestDslashVec)
 {
