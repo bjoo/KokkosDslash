@@ -24,6 +24,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
+constexpr int L=48;
 
 #if defined( MG_USE_CUDA ) || defined ( MG_USE_HIP )
 constexpr static int V = 16;
@@ -304,8 +305,9 @@ TEST(TestKokkos, TestMultHalfSpinor)
 #if 1
 TEST(TestKokkos, TestDslash)
 {
-  IndexArray latdims={{32,32,32,32}};
-	int iters = 10;
+
+  IndexArray latdims={{L,L,L,L}};
+	int iters = 200;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());
@@ -450,7 +452,7 @@ TEST(TestKokkos, TestDslashVec)
 #endif
 
 
-#if !defined(MG_USE_HIP)
+#if !defined(MG_USE_HIP) && ! defined(MG_USE_OPENMP_TARGET)
 TEST(TestKokkos, TestDslashVecLonger)
 {
   IndexArray latdims={{16,16,16,32}};

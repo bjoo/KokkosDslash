@@ -91,7 +91,7 @@ template<typename T, int N>
  // THIS IS WHERE WE INTRODUCE SOME NONPORTABILITY
   // ThreadSIMDComplex ***MUST** only be instantiated in 
   // a Kokkos parallel region
-#if defined(MG_USE_CUDA) || defined(MG_USE_HIP)
+#if defined(MG_USE_CUDA) || defined(MG_USE_HIP) || defined(MG_USE_OPENMP_TARGET)
   template<typename T, int N> 
   using ThreadSIMDComplex = GPUThreadSIMDComplex<T,N>;
 #else
@@ -105,7 +105,7 @@ template<typename T, int N>
 
 #if ! defined( MG_USE_CUDA ) 
 
-#if !defined( MG_USE_HIP)
+#if !defined( MG_USE_HIP) && !defined( MG_USE_OPENMP_TARGET) 
 // GENERAL THREADVECTORRANGE
 // T1 must support indexing with operator()
   template<typename T, int N, template <typename,int> class T1, template <typename,int> class T2>
