@@ -307,7 +307,7 @@ TEST(TestKokkos, TestDslash)
 {
 
   IndexArray latdims={{L,L,L,L}};
-	int iters = 200;
+	int iters = 10;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());
@@ -359,7 +359,7 @@ TEST(TestKokkos, TestDslash)
 	    }
 	    double time_taken = timer.seconds();
 	    
-	    double rfo = 1.0;
+	    double rfo = 0.0;
 	    double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);
 	    double bytes_in = static_cast<double>((8*4*3*2*sizeof(REAL32)+8*3*3*2*sizeof(REAL32))*num_sites*iters);
 	    double bytes_out = (1.0+rfo)*static_cast<double>(4*3*2*sizeof(REAL32)*num_sites*iters);
