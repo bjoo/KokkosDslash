@@ -31,9 +31,9 @@ using HostExec = Kokkos::Serial;
   using ExecSpace = Kokkos::Experimental::HIP::execution_space;
   using MemorySpace = Kokkos::Experimental::HIP::memory_space;
   
-  using Layout = Kokkos::LayoutRight;
-  using GaugeLayout = Kokkos::LayoutRight;
-  using NeighLayout = Kokkos::LayoutRight;
+  using Layout = Kokkos::LayoutLeft;
+  using GaugeLayout = Kokkos::LayoutLeft;
+  using NeighLayout = Kokkos::LayoutLeft;
 #elif defined (MG_USE_OPENMP_TARGET)
 
   using ExecSpace = Kokkos::Experimental::OpenMPTarget::execution_space;
