@@ -450,7 +450,7 @@ TEST(TestKokkos, TestDslashVec)
 #endif
 
 
-#if !defined(MG_USE_HIP)
+#if defined( MG_USE_AVX512 ) || defined (MG_USE_AVX2) || defined( MG_USE_CUDA )
 TEST(TestKokkos, TestDslashVecLonger)
 {
   IndexArray latdims={{16,16,16,32}};

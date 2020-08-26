@@ -29,3 +29,9 @@
 
 // HIP
 #cmakedefine MG_USE_HIP @MG_USE_HIP@
+
+// OpenMP Target
+#cmakedefine MG_USE_OPENMPTARGET @MG_USE_OPENMPTARGET@
+
+// Use a lookup table instead of indexing
+#cmakedefine MG_KOKKOS_USE_NEIGHBOR_TABLE @MG_KOKKOS_USE_NEIGHBOR_TABLE@

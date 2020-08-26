@@ -43,6 +43,11 @@ if ( KOKKOS_ENABLE_OPENMP )
   find_package(OpenMP REQUIRED)
 endif()
 
+if (Kokkos_ENABLE_OPENMPTARGET)
+   message(STATUS "Kokkos is using OpenMPTarget and so am I")
+   set(MG_USE_OPENMPTARGET ON)
+endif()
+
 # Find QDP++  for tests
 list(APPEND CMAKE_MODULE_PATH "${QDPXX_DIR}")
 find_package(QDPXX)
