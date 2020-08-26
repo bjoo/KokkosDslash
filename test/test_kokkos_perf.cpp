@@ -24,7 +24,7 @@ using namespace MG;
 using namespace MGTesting;
 using namespace QDP;
 
-constexpr int L=48;
+constexpr int L=32;
 
 #if defined( MG_USE_CUDA ) || defined ( MG_USE_HIP )
 constexpr static int V = 16;
@@ -307,7 +307,7 @@ TEST(TestKokkos, TestDslash)
 {
 
   IndexArray latdims={{L,L,L,L}};
-	int iters = 200;
+	int iters = 20;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());
