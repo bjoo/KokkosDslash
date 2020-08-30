@@ -31,9 +31,9 @@ using HostExec = Kokkos::Serial;
   using ExecSpace = Kokkos::Experimental::HIP::execution_space;
   using MemorySpace = Kokkos::Experimental::HIP::memory_space;
   
-  using Layout = Kokkos::LayoutRight;
-  using GaugeLayout = Kokkos::LayoutRight;
-  using NeighLayout = Kokkos::LayoutRight;
+  using Layout = Kokkos::LayoutLeft;
+  using GaugeLayout = Kokkos::LayoutLeft;
+  using NeighLayout = Kokkos::LayoutLeft;
 #elif defined(MG_USE_OPENMPTARGET)
   using ExecSpace = Kokkos::Experimental::OpenMPTarget::execution_space;
   using MemorySpace = Kokkos::Experimental::OpenMPTarget::memory_space;
@@ -49,9 +49,12 @@ using HostExec = Kokkos::Serial;
   using NeighLayout = Kokkos::OpenMP::array_layout;
 #endif
 
-#if defined(MG_USE_CUDA) || defined(MG_USE_HIP) || defined(MG_USE_OPENMPTARGET)
+#if defined(MG_USE_CUDA) || defined(MG_USE_OPENMPTARGET)
 using ThreadExecPolicy =  Kokkos::TeamPolicy<ExecSpace,Kokkos::LaunchBounds<128,1>>;
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
+#elif defined(MG_USE_HIP)
+using ThreadExecPolicy =  Kokkos::TeamPolicy<ExecSpace,Kokkos::LaunchBounds<256,1>>;
+using SimpleRange = Kokkos::RangePolicy<ExecSpace,Kokkos::LaunchBounds<256,1>>;
 #else
 using ThreadExecPolicy = Kokkos::TeamPolicy<ExecSpace>;
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
