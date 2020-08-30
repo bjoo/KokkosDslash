@@ -512,7 +512,7 @@ TEST(TestKokkos, TestDslashVecLonger)
 	    auto end_time = std::clock();
 	    double time_taken = (double)(end_time - start_time)/CLOCKS_PER_SEC;
 
-	    double rfo = 1.0;
+	    double rfo = 0.0;
 	    double num_sites = static_cast<double>((latdims[0]/2)*latdims[1]*latdims[2]*latdims[3]);
 	    double bytes_in = static_cast<double>((8*4*3*2*sizeof(REAL32)*V+8*3*3*2*sizeof(REAL32))*num_sites*iters);
 	    double bytes_out = (1.0+rfo)*static_cast<double>(V*4*3*2*sizeof(REAL32)*num_sites*iters);
