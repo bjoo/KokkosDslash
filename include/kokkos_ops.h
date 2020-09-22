@@ -104,6 +104,25 @@ void A_add_sign_B( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>&
    res = MGComplex<T>(res_re,res_im);
  }
 
+  template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_add_sign_B<float,1>( MGComplex<float>& res, const MGComplex<float>& a, const MGComplex<float>& b)
+{
+   float res_re = a.real() + b.real();
+   float res_im = a.imag() + b.imag();
+   res = MGComplex<float>(res_re,res_im);
+ }
+
+    template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_add_sign_B<float,-1>( MGComplex<float>& res, const MGComplex<float>& a, const MGComplex<float>& b)
+{
+   float res_re = a.real() - b.real();
+   float res_im = a.imag() - b.imag();
+   res = MGComplex<float>(res_re,res_im);
+ }
+
+
 
 template<typename T>
 KOKKOS_FORCEINLINE_FUNCTION
@@ -122,6 +141,25 @@ void A_add_sign_iB( MGComplex<T>& res, const MGComplex<T>& a, const MGComplex<T>
   T res_re =  a.real()-sign*b.imag();
   T res_im =  a.imag()+sign*b.real();
   res = MGComplex<T>(res_re,res_im);
+}
+
+  template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_add_sign_iB<float,1>( MGComplex<float>& res, const MGComplex<float>& a, const MGComplex<float>& b)
+{
+  float res_re =  a.real()-b.imag();
+  float res_im =  a.imag()+b.real();
+  res = MGComplex<float>(res_re,res_im);
+}
+
+
+    template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_add_sign_iB<float,-1>( MGComplex<float>& res, const MGComplex<float>& a, const MGComplex<float>& b)
+{
+  float res_re =  a.real()+b.imag();
+  float res_im =  a.imag()-b.real();
+  res = MGComplex<float>(res_re,res_im);
 }
 
 
@@ -147,6 +185,23 @@ void A_peq_sign_miB( MGComplex<T>& a, const MGComplex<T>& b)
   a = MGComplex<T>(res_re,res_im);
 }
 
+  template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_peq_sign_miB<float,1>( MGComplex<float>& a, const MGComplex<float>& b)
+{
+
+  a.real() +=  b.imag();
+  a.imag() -= b.real();
+}
+
+    template<>
+KOKKOS_FORCEINLINE_FUNCTION
+  void A_peq_sign_miB<float,-1>( MGComplex<float>& a, const MGComplex<float>& b)
+{
+
+  a.real() -=  b.imag();
+  a.imag() += b.real();
+}
 
 // a = b
 template<typename T>
@@ -168,6 +223,25 @@ void A_peq_sign_B( MGComplex<T>& a, const MGComplex<T>& b)
   T res_re = a.real() + fsign*b.real();
   T res_im = a.imag() + fsign*b.imag();
   a = MGComplex<T>(res_re,res_im);
+}
+
+template<>
+KOKKOS_FORCEINLINE_FUNCTION
+void A_peq_sign_B<float,1>( MGComplex<float>& a, const MGComplex<float>& b)
+{
+
+   a.real() += b.real();
+   a.imag() += b.imag();
+}
+
+
+template<>
+KOKKOS_FORCEINLINE_FUNCTION
+void A_peq_sign_B<float,-1>( MGComplex<float>& a, const MGComplex<float>& b)
+{
+
+   a.real() -= b.real();
+   a.imag() -= b.imag();
 }
 
 

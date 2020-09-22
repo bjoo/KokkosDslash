@@ -18,6 +18,27 @@
 namespace MG
 {
 
+  	template<typename T,const int S, const int C>
+	struct SiteView {
+		T _data[S][C];
+		KOKKOS_INLINE_FUNCTION T& operator()(int color, int spin) {
+			return _data[spin][color];
+		}
+		KOKKOS_INLINE_FUNCTION const T& operator()(int color, int spin) const {
+			return _data[spin][color];
+		}
+	};
+
+	template<typename T>
+	using SpinorSiteView = SiteView<T,4,3>;
+
+	template<typename T>
+	using HalfSpinorSiteView = SiteView<T,2,3>;
+
+	template<typename T>
+	  using GaugeSiteView = SiteView<T,3,3>;
+
+
 	template<typename T, int _num_spins>
 	class KokkosCBFineSpinor {
 	public:
@@ -33,6 +54,8 @@ namespace MG
 						_num_spins,_info.GetNumColors());
 			}
 		}
+
+		
 #if 0
 		inline
 		const T& operator()(int cb_site, int spin, int color) const
@@ -154,28 +177,6 @@ namespace MG
 	template<typename T, int N>
 	using KokkosCBFineHalfSpinorVec = KokkosCBFineSpinor<MG::SIMDComplex<T,N>,2>;
 
-
-
-	template<typename T,const int S, const int C>
-	struct SiteView {
-		T _data[S][C];
-		KOKKOS_INLINE_FUNCTION T& operator()(int color, int spin) {
-			return _data[spin][color];
-		}
-		KOKKOS_INLINE_FUNCTION const T& operator()(int color, int spin) const {
-			return _data[spin][color];
-		}
-	};
-
-	template<typename T>
-	using SpinorSiteView = SiteView<T,4,3>;
-
-	template<typename T>
-	using HalfSpinorSiteView = SiteView<T,2,3>;
-
-	template<typename T>
-	  using GaugeSiteView = SiteView<T,3,3>;
-
 	template<typename T>
 	using GaugeView = typename KokkosCBFineGaugeField<T>::DataType;
 
@@ -183,6 +184,28 @@ namespace MG
 	using GaugeViewVec = typename KokkosCBFineGaugeField<MG::SIMDComplex<T,N>>::DataType;
 
 
+  template<typename TST, typename ST> 
+  KOKKOS_FORCEINLINE_FUNCTION
+  void load(SpinorSiteView<TST>& out, const SpinorView<ST>& in, IndexType cb_site)  {
+    for(int spin=0; spin < 4; ++spin) {
+      for(int color=0; color < 3; ++color) {
+	  out(color,spin) = in(cb_site,color,spin);
+      }
+    }
+
+  }
+
+ template<typename TGT, typename GT>
+  KOKKOS_FORCEINLINE_FUNCTION
+ void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir)  {
+   for(int col=0; col< 3; ++col) {
+      for(int row=0; row < 3; ++row) {
+	  out(row,col) = in(cb_site,dir,row,col);
+      }
+    }
+
+  }
+  
 };
 
 

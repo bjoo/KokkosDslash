@@ -57,8 +57,7 @@ using ThreadExecPolicy =  Kokkos::TeamPolicy<ExecSpace,Kokkos::LaunchBounds<128,
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
 #elif defined(MG_USE_HIP)
 using SimpleRange = Kokkos::RangePolicy<ExecSpace,Kokkos::LaunchBounds<256,1>>;
-
-#elif !defined(MG_USE_HIP) && !defined(MG_USE_OPENMP_TARGET)
+#else  
 using ThreadExecPolicy = Kokkos::TeamPolicy<ExecSpace>;
 using SimpleRange = Kokkos::RangePolicy<ExecSpace>;
 #endif

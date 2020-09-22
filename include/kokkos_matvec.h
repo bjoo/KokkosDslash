@@ -17,68 +17,56 @@ namespace MG
 {
 
 
-	template<typename GT, typename ST>
-	KOKKOS_FORCEINLINE_FUNCTION
-	void mult_u_halfspinor(const GaugeView<GT>& gauge_in,
-			const HalfSpinorSiteView<ST>& v_in,
-			HalfSpinorSiteView<ST>& v_out,int i,int dir)
+	template<typename T>
+	KOKKOS_INLINE_FUNCTION
+	void mult_u_halfspinor(const GaugeSiteView<T>& u,
+			const HalfSpinorSiteView<T>& v_in,
+			HalfSpinorSiteView<T>& v_out)
 	{
 
-		for(int row=0; row < 3; ++row) {
+	  for(int row=0; row < 3; ++row) {
+	    for(int spin = 0; spin < 2; ++spin) {
+	      ComplexZero(v_out(row,spin));
+	    }
 
-			for(int spin = 0; spin < 2; ++spin) {
-				ComplexZero(v_out(row,spin));
-			}
-
-			for(int col=0; col < 3; ++col) {
-				for(int spin = 0; spin < 2; ++spin) {
+	    for(int col=0; col < 3; ++col) {
+	      for(int spin = 0; spin < 2; ++spin) {
 					//v_out(row,spin) += u(row,col)*v_in(col);
 					// complex mul:   real_part: a(K_RE)*b(K_RE)-a(K_IM)*b(K_IM)
 					//                imag_part: a(K_RE)*b(K_IM) + a(K_IM)*b(K_RE);
 					//
-					ComplexCMadd(v_out(row,spin), gauge_in(i,dir,row,col), v_in(col,spin));
-				}
-			}
-		}
+		ComplexCMadd(v_out(row,spin), u(row,col), v_in(col,spin));
+	      }
+	    }
+	  }
 
 
 	}
 
 
-	template<typename GT, typename ST>
-	KOKKOS_FORCEINLINE_FUNCTION
-	void mult_adj_u_halfspinor(const GaugeView<GT>& gauge_in,
-			const HalfSpinorSiteView<ST>& v_in,
-			HalfSpinorSiteView<ST>& v_out, int i, int dir)
+	template<typename T>
+	KOKKOS_INLINE_FUNCTION
+	void mult_adj_u_halfspinor(const GaugeSiteView<T>& u,
+			const HalfSpinorSiteView<T>& v_in,
+			HalfSpinorSiteView<T>& v_out)
 	{
+	  for(int row=0; row < 3; ++row) {
+	    for(int spin = 0; spin < 2; ++spin) {
+	      ComplexZero(v_out(row,spin));
+	    }
+	  }
 
-				for(int row=0; row < 3; ++row) {
-					for(int spin = 0; spin < 2; ++spin) {
-
-						ComplexZero(v_out(row,spin));
-					}
-				}
-
-				for(int col=0; col < 3; ++col) {
-					for(int row=0; row < 3; ++row) {
-						//v_out(row,spin) += u(row,col)*v_in(col);
-						// complex mul:   real_part: a(K_RE)*b(K_RE)-a(K_IM)*b(K_IM)
-						//                imag_part: a(K_RE)*b(K_IM) + a(K_IM)*b(K_RE);
-						//
-#if 0
-						v_out(row,spin,K_RE) += gauge_in(i,dir,col,row,K_RE)*v_in(col,spin,K_RE);
-						v_out(row,spin,K_RE) += gauge_in(i,dir,col,row,K_IM)*v_in(col,spin,K_IM);
-
-						v_out(row,spin,K_IM) += gauge_in(i,dir,col,row,K_RE)*v_in(col,spin,K_IM);
-						v_out(row,spin,K_IM) -= gauge_in(i,dir,col,row,K_IM)*v_in(col,spin,K_RE);
-#endif
-						for(int spin=0; spin < 2; ++spin) {
-							ComplexConjMadd(v_out(row,spin), gauge_in(i,dir,col,row), v_in(col,spin));
-						}
-					}
-				}
-
-
+	  for(int col=0; col < 3; ++col) {
+	    for(int row=0; row < 3; ++row) {
+	      //v_out(row,spin) += u(row,col)*v_in(col);
+	      // complex mul:   real_part: a(K_RE)*b(K_RE)-a(K_IM)*b(K_IM)
+	      //                imag_part: a(K_RE)*b(K_IM) + a(K_IM)*b(K_RE);
+	      //
+	      for(int spin=0; spin < 2; ++spin) {
+		ComplexConjMadd(v_out(row,spin), u(col,row), v_in(col,spin));
+	      }
+	    }
+	  }
 	}
 
 	template<typename GT, typename ST, typename TST>
@@ -105,15 +93,16 @@ namespace MG
 #endif
 				// Site local workspace...
 				HalfSpinorSiteView<TST> site_in;
-
+				GaugeSiteView<TST> u_site;
 				for(int col=0; col <3; ++col) {
 					for(int spin=0; spin < 2; ++spin) {
 						Load(site_in(col,spin), hspinor_in_view(i,col,spin));
 					}
 				}
 
+			        load<TST,GT>(u_site,u,i,dir);
 				HalfSpinorSiteView<TST> site_out;
-				mult_u_halfspinor<GT,TST>(u, site_in, site_out, i, dir);
+				mult_u_halfspinor<TST>(u_site, site_in, site_out);
 
 				// Write out
 				for(int col=0; col < 3; ++col) {
@@ -161,9 +150,10 @@ namespace MG
 					Load(site_in(col,spin), hspinor_in_view(i,col,spin));
 				}
 			}
-
+			GaugeSiteView<TST> u_site;
+			load<TST,GT>(u_site,u,i,dir);
 			HalfSpinorSiteView<TST> site_out;
-			mult_adj_u_halfspinor<GT,TST>(u, site_in, site_out, i, dir);
+			mult_adj_u_halfspinor<TST>(u_site, site_in, site_out);
 
 			// Write out
 			for(int col=0; col < 3; ++col) {
