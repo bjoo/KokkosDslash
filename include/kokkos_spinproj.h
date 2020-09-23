@@ -172,13 +172,7 @@ KOKKOS_INLINE_FUNCTION
 		  KokkosProjectDir3<T,T2,isign>(in, res);
 		}
 
-		for(int color=0; color < 3; ++color) {
-		  for(int spin=0; spin<2; ++spin) {
-
-		    //hspinor_out(i,spin,color,reim) = res(spin,color,reim);
-		    Store(hspinor_out(i,color,spin), res(color,spin));
-		  }
-		}
+		write<T,T2>(hspinor_out,res,i);
 		  });
 
 //#ifndef MG_FLAT_PARALLEL_DSLASH 
@@ -381,12 +375,7 @@ void KokkosReconsLattice(const KokkosCBFineSpinor<T,2>& kokkos_hspinor_in,
 		HalfSpinorSiteView<T2> hspinor_in;
 		SpinorSiteView<T2> res;
 
-		// Stream in top 2 components.
-		for(int color=0; color < 3; ++color) {
-		  for(int spin=0; spin < 2; ++spin ) {
-		    Load(hspinor_in(color,spin),hspinor_in_view(i,color,spin));
-		  }
-		}
+		load<T,T2>(hspinor_in, hspinor_in_view,i);
 
 		for(int color=0; color < 3; ++color) {
 		  for(int spin=0; spin < 4; ++spin ) {
@@ -414,16 +403,7 @@ void KokkosReconsLattice(const KokkosCBFineSpinor<T,2>& kokkos_hspinor_in,
 
 		}
 
-		// Stream out into a spinor
-		for(int color=0; color < 3; ++color ) {
-		  for(int spin=0; spin < 4; ++spin) {
-
-		    Store( spinor_out(i,color,spin), res(color,spin));
-
-		  }
-
-
-		}
+		write<T,T2>(spinor_out, res, i);
 
 	});
 

@@ -42,8 +42,8 @@ namespace MG
 							for(int spin=0; spin < 4; ++spin) {
 
 							const int qdp_index = sub.siteTable()[i];
-
-							h_out(i,color,spin)= MGComplex<T>(qdp_in.elem(qdp_index).elem(spin).elem(color).real(),
+							
+							h_out(i,spin/2 + 2*color,spin%2)= MGComplex<T>(qdp_in.elem(qdp_index).elem(spin).elem(color).real(),
 																	qdp_in.elem(qdp_index).elem(spin).elem(color).imag());
 
 						} // spin
@@ -85,7 +85,7 @@ namespace MG
 							const int qdp_index = sub.siteTable()[i];
 
 							for(int v=0; v < N; ++v ) {
-								h_out(i,color,spin).set(v, MGComplex<T>(qdp_in[v].elem(qdp_index).elem(spin).elem(color).real(),
+								h_out(i,spin/2+2*color,spin%2).set(v, MGComplex<T>(qdp_in[v].elem(qdp_index).elem(spin).elem(color).real(),
 										qdp_in[v].elem(qdp_index).elem(spin).elem(color).imag()));
 							}
 
@@ -123,8 +123,8 @@ namespace MG
 						for(int color=0; color < 3; ++color) {
 							for(int spin=0; spin < 4; ++spin) {
 							const int qdp_index = sub.siteTable()[i];
-							qdp_out.elem(qdp_index).elem(spin).elem(color).real() = h_in(i,color,spin).real();
-							qdp_out.elem(qdp_index).elem(spin).elem(color).imag() = h_in(i,color,spin).imag();
+							qdp_out.elem(qdp_index).elem(spin).elem(color).real() = h_in(i,spin/2+2*color,spin%2).real();
+							qdp_out.elem(qdp_index).elem(spin).elem(color).imag() = h_in(i,spin/2+2*color,spin%2).imag();
 						} // spin
 					} // color
 			}// kokkos lambda
@@ -164,8 +164,8 @@ namespace MG
 							for(int spin=0; spin < 4; ++spin) {
 							const int qdp_index = sub.siteTable()[i];
 							for(int v = 0; v < N; ++v) {
-								qdp_out[v].elem(qdp_index).elem(spin).elem(color).real() = (h_in(i,color,spin)(v)).real();
-								qdp_out[v].elem(qdp_index).elem(spin).elem(color).imag() = (h_in(i,color,spin)(v)).imag();
+								qdp_out[v].elem(qdp_index).elem(spin).elem(color).real() = (h_in(i,spin/2+2*color,spin%2)(v)).real();
+								qdp_out[v].elem(qdp_index).elem(spin).elem(color).imag() = (h_in(i,spin/2+2*color,spin%2)(v)).imag();
 							}
 						} // spin
 					} // color

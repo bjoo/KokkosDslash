@@ -307,7 +307,7 @@ TEST(TestKokkos, TestDslash)
 {
 
   IndexArray latdims={{L,L,L,L}};
-	int iters = 50;
+	int iters = 1000;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());

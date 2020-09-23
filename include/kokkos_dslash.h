@@ -526,11 +526,7 @@ private:
 		    }
 		    
 		    // Stream out spinor
-		    for(IndexType spin=0; spin < 4; ++spin) {
-		      for(IndexType color=0; color < 3; ++color) {		      
-		    	  Stream(s_out(site,color,spin),res_sum(color,spin));
-		      }
-		    }
+		    write<TST,ST>(s_out, res_sum,site);
 #if !defined (MG_FLAT_PARALLEL_DSLASH) && !defined(MG_KOKKOS_USE_MDRANGE)
 	      });
 #endif 

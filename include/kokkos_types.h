@@ -43,7 +43,8 @@ namespace MG
 	class KokkosCBFineSpinor {
 	public:
 		KokkosCBFineSpinor(const LatticeInfo& info, IndexType cb)
-		: _cb_data("cb_data", info.GetNumCBSites()), _info(info), _cb(cb) {
+		: _my_layout(info.GetNumCBSites(),2, 3*(_num_spins/2),2*info.GetNumCBSites(), 2, 1), 
+		  _cb_data("cb_data",_my_layout ), _info(info), _cb(cb) {
 
 			if( _info.GetNumColors() != 3 ) {
 				MasterLog(ERROR, "KokkosCBFineSpinor has to have 3 colors in info. Info has %d", _info.GetNumColors());
@@ -56,19 +57,20 @@ namespace MG
 		}
 
 		
-#if 0
-		inline
+
+		KOKKOS_INLINE_FUNCTION	
 		const T& operator()(int cb_site, int spin, int color) const
-		{
-			return _cb_data(cb_site,color,spin);
+		{	
+			
+			return _cb_data(cb_site, spin/_Ns2 + _Ns2*color, spin % _Ns2);
 		}
 
-		inline
+		KOKKOS_INLINE_FUNCTION
 		T& operator()(int cb_site, int spin, int color)
 		{
-			return _cb_data(cb_site,color,spin);
+			return _cb_data(cb_site, spin/_Ns2 + _Ns2*color, spin % _Ns2);
 		}
-#endif
+
 		inline
 		const LatticeInfo& GetInfo() const {
 			return _info;
@@ -79,7 +81,7 @@ namespace MG
 			return _cb;
 		}
 
-		using DataType = Kokkos::View<T*[3][_num_spins],Layout,MemorySpace>;
+		using DataType = Kokkos::View<T*[3*(_num_spins/2)][2],Kokkos::LayoutStride,MemorySpace>;
 
 
 		const DataType& GetData() const {
@@ -92,6 +94,8 @@ namespace MG
 		}
 
 	private:
+		static constexpr int _Ns2 = _num_spins / 2;
+		Kokkos::LayoutStride _my_layout;
 		DataType _cb_data;
 		const LatticeInfo& _info;
 		const IndexType _cb;
@@ -102,7 +106,8 @@ namespace MG
 	class KokkosCBFineGaugeField {
 	public:
 		KokkosCBFineGaugeField(const LatticeInfo& info, IndexType cb)
-		: _cb_gauge_data("cb_gauge_data", info.GetNumCBSites()), _info(info), _cb(cb) {
+		: _my_layout(info.GetNumCBSites(), 1, 4, 9*info.GetNumCBSites(), 3, 3*info.GetNumCBSites(), 3, info.GetNumCBSites()),
+		_cb_gauge_data("cb_gauge_data", _my_layout), _info(info), _cb(cb) {
 
 			if( _info.GetNumColors() != 3 ) {
 				MasterLog(ERROR, "KokkosFineGaugeField needs to have 3 colors. Info has %d", _info.GetNumColors());
@@ -119,7 +124,7 @@ namespace MG
 			return _cb_gauge_data(site,dir,color1,color2);
 		}
 
-		using DataType = Kokkos::View<T*[4][3][3],GaugeLayout,MemorySpace>;
+		using DataType = Kokkos::View<T*[4][3][3],Kokkos::LayoutStride,MemorySpace>;
 
 		DataType& GetData() {
 			return _cb_gauge_data;
@@ -139,6 +144,7 @@ namespace MG
 				return _info;
 		}
 	private:
+		Kokkos::LayoutStride _my_layout;
 		DataType _cb_gauge_data;
 		const LatticeInfo& _info;
 		IndexType _cb;
@@ -187,19 +193,47 @@ namespace MG
   template<typename TST, typename ST> 
   KOKKOS_FORCEINLINE_FUNCTION
   void load(SpinorSiteView<TST>& out, const SpinorView<ST>& in, IndexType cb_site)  {
-    for(int spin=0; spin < 4; ++spin) {
-      for(int color=0; color < 3; ++color) {
-	  out(color,spin) = in(cb_site,color,spin);
+     for(int color=0; color < 6; ++color) { 
+      for(int spin=0; spin < 2; ++spin) {
+	  out(color >> 1, spin + (( color & 0x1) << 1) ) = in(cb_site, color,spin);
       }
     }
-
+  }
+ 
+  template<typename TST, typename ST>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void load(HalfSpinorSiteView<TST>& out, const HalfSpinorView<ST>& in, IndexType cb_site)  {
+    for(int color=0; color < 3; ++color) {
+      for(int spin=0; spin < 2; ++spin) {
+          out(color,spin) = in(cb_site,color,spin);
+      }
+    }
   }
 
+  template<typename TST, typename ST>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void write(const SpinorView<ST>& out, const SpinorSiteView<TST>& in, IndexType cb_site)  {
+    for(int color=0; color < 6; ++color) {
+      for(int spin=0; spin < 2; ++spin) {
+          out(cb_site,color,spin) = in(color >> 1, spin + ((color & 0x1) << 1) );
+      }
+    }
+  }
+
+  template<typename TST, typename ST>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void write(const HalfSpinorView<ST>& out, const HalfSpinorSiteView<TST>& in, IndexType cb_site)  {
+    for(int color=0; color < 3; ++color) {
+      for(int spin=0; spin < 2; ++spin) {
+          out(cb_site,color,spin) = in(color,spin);
+      }
+    }
+  }
  template<typename TGT, typename GT>
   KOKKOS_FORCEINLINE_FUNCTION
  void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir)  {
-   for(int col=0; col< 3; ++col) {
-      for(int row=0; row < 3; ++row) {
+    for(int row=0; row < 3; ++row) {
+      for(int col=0; col< 3; ++col) {
 	  out(row,col) = in(cb_site,dir,row,col);
       }
     }
