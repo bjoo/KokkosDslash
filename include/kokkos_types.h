@@ -281,6 +281,59 @@ namespace MG
     }
   }
 
+#if 1 
+   template<>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void write<MGComplex<float>,MGComplex<float>>(const SpinorView<MGComplex<float>>& out, const SpinorSiteView<MGComplex<float>>& in, IndexType cb_site)
+  {
+          auto stride1 = out.stride(1);
+          float* onptr = (float *)out.data() + cb_site*out.stride(0);
+          {
+                onptr[0] = in._data[0][0].real();
+                onptr[1] = in._data[0][0].imag();
+                onptr[2] = in._data[1][0].real();
+                onptr[3] = in._data[1][0].imag();
+                onptr += stride1;
+          }
+
+          {
+                onptr[0] = in._data[2][0].real();
+                onptr[1] = in._data[2][0].imag();
+                onptr[2] = in._data[3][0].real();
+                onptr[3] = in._data[3][0].imag();
+                onptr += stride1;
+          }
+          {
+                onptr[0] = in._data[0][1].real();
+                onptr[1] = in._data[0][1].imag();
+                onptr[2] = in._data[1][1].real();
+                onptr[3] = in._data[1][1].imag();
+                onptr += stride1;
+          }
+          {
+                onptr[0] = in._data[2][1].real();
+                onptr[1] = in._data[2][1].imag();
+                onptr[2] = in._data[3][1].real();
+                onptr[3] = in._data[3][1].imag();
+                onptr += stride1;
+          }
+	  {
+                onptr[0] = in._data[0][2].real();
+                onptr[1] = in._data[0][2].imag();
+                onptr[2] = in._data[1][2].real();
+                onptr[3] = in._data[1][2].imag();
+                onptr += stride1;
+          }
+          {
+                onptr[0] = in._data[2][2].real();
+                onptr[1] = in._data[2][2].imag();
+                onptr[2] = in._data[3][2].real();
+                onptr[3] = in._data[3][2].imag();
+                onptr += stride1;
+          }
+  }
+#endif
+
   template<typename TST, typename ST>
   KOKKOS_FORCEINLINE_FUNCTION
   void write(const HalfSpinorView<ST>& out, const HalfSpinorSiteView<TST>& in, IndexType cb_site)  {
@@ -290,6 +343,7 @@ namespace MG
       }
     }
   }
+
  template<typename TGT, typename GT>
   KOKKOS_FORCEINLINE_FUNCTION
  void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir)  {
