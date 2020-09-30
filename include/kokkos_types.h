@@ -199,7 +199,68 @@ namespace MG
       }
     }
   }
- 
+
+#if 1
+  template<>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void load<MGComplex<float>,MGComplex<float>>(SpinorSiteView<MGComplex<float>>& out, const SpinorView<MGComplex<float>>& in, IndexType cb_site)
+  {
+	  //float inptr[4];
+ 	  auto stride1 = in.stride(1);	
+          float const * inptr = (float const *)in.data() + cb_site*in.stride(0); 	  
+	  {
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+      		out._data[0][0].real() = inptr[0];
+      		out._data[0][0].imag() = inptr[1];
+      		out._data[1][0].real() = inptr[2];
+      		out._data[1][0].imag() = inptr[3];
+		inptr += stride1;
+	  }
+          {
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+                out._data[2][0].real() = inptr[0];
+                out._data[2][0].imag() = inptr[1];
+                out._data[3][0].real() = inptr[2];
+                out._data[3][0].imag() = inptr[3];
+		inptr += stride1;
+          }
+	  {
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+                out._data[0][1].real() = inptr[0];
+                out._data[0][1].imag() = inptr[1];
+                out._data[1][1].real() = inptr[2];
+                out._data[1][1].imag() = inptr[3];
+		inptr+= stride1;
+          }
+          {
+
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+                out._data[2][1].real() = inptr[0];
+                out._data[2][1].imag() = inptr[1];
+                out._data[3][1].real() = inptr[2];
+                out._data[3][1].imag() = inptr[3];
+	        inptr += stride1;
+          }
+
+	  {
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+                out._data[0][2].real() = inptr[0];
+                out._data[0][2].imag() = inptr[1];
+                out._data[1][2].real() = inptr[2];
+                out._data[1][2].imag() = inptr[3];
+		inptr += stride1;
+          }
+          {
+		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
+                out._data[2][2].real() = inptr[0];
+                out._data[2][2].imag() = inptr[1];
+                out._data[3][2].real() = inptr[2];
+                out._data[3][2].imag() = inptr[3];
+		inptr += stride1;
+          }
+  }
+#endif
+
   template<typename TST, typename ST>
   KOKKOS_FORCEINLINE_FUNCTION
   void load(HalfSpinorSiteView<TST>& out, const HalfSpinorView<ST>& in, IndexType cb_site)  {
