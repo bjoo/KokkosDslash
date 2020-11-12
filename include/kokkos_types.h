@@ -12,7 +12,7 @@
 
 #include "lattice/lattice_info.h"
 #include "utils/print_utils.h"
-
+#include "./kokkos_traits.h"
 #include "./kokkos_defaults.h"
 #include "./kokkos_vectype.h"
 namespace MG
@@ -21,10 +21,10 @@ namespace MG
   	template<typename T,const int S, const int C>
 	struct SiteView {
 		T _data[S][C];
-		KOKKOS_INLINE_FUNCTION T& operator()(int color, int spin) {
+		KOKKOS_FORCEINLINE_FUNCTION T& operator()(int color, int spin) {
 			return _data[spin][color];
 		}
-		KOKKOS_INLINE_FUNCTION const T& operator()(int color, int spin) const {
+		KOKKOS_FORCEINLINE_FUNCTION const T& operator()(int color, int spin) const {
 			return _data[spin][color];
 		}
 	};
@@ -189,7 +189,32 @@ namespace MG
 	template<typename T, int N>
 	using GaugeViewVec = typename KokkosCBFineGaugeField<MG::SIMDComplex<T,N>>::DataType;
 
+ template<typename T>
+ KOKKOS_INLINE_FUNCTION
+ void load2(T* __restrict out, const T * __restrict const in)
+ {
+	 for(int i=0; i < 2; ++i) out[i] = in[i];
+ }
 
+template<typename T>
+KOKKOS_INLINE_FUNCTION
+void load4(T* __restrict out , const T * __restrict const in )
+{
+	for(int i=0; i < 4; ++i) out[i] = in[i];
+}
+
+template<typename T>
+KOKKOS_INLINE_FUNCTION
+void write4(T* __restrict out, const T * __restrict const in)
+{
+ 	for(int i=0; i < 4; ++i) out[i] = in[i];
+}
+
+ template<typename TST, typename ST>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void load(SpinorSiteView<TST>& out, const SpinorView<ST>& in, IndexType cb_site);  
+
+#if 0
   template<typename TST, typename ST> 
   KOKKOS_FORCEINLINE_FUNCTION
   void load(SpinorSiteView<TST>& out, const SpinorView<ST>& in, IndexType cb_site)  {
@@ -199,65 +224,140 @@ namespace MG
       }
     }
   }
-
-#if 1
+#else
   template<>
   KOKKOS_FORCEINLINE_FUNCTION
   void load<MGComplex<float>,MGComplex<float>>(SpinorSiteView<MGComplex<float>>& out, const SpinorView<MGComplex<float>>& in, IndexType cb_site)
   {
-	  //float inptr[4];
- 	  auto stride1 = in.stride(1);	
-          float const * inptr = (float const *)in.data() + cb_site*in.stride(0); 	  
+#if 0
+ 	  auto stride1 = in.stride(1) << 1 ;	
+          float const * inbuf = reinterpret_cast<float const *>(in.data() + cb_site*in.stride(0));
+	  for(int j=0; j < 3; ++j) { 
+            float inptr[4];
+            float inptr2[4];
+	    for(int i=0; i < 4; ++i)  inptr[i] = inbuf[i];
+	    inbuf += stride1;
+	    for(int i=0; i < 4; ++i)  inptr2[i] = inbuf[i];
+	    inbuf += stride1;
+            {
+                out._data[0][j].real() = inptr[0];
+                out._data[0][j].imag() = inptr[1];
+                out._data[1][j].real() = inptr[2];
+                out._data[1][j].imag() = inptr[3];
+            }
+            {
+                out._data[2][j].real() = inptr2[0];
+                out._data[2][j].imag() = inptr2[1];
+                out._data[3][j].real() = inptr2[2];
+                out._data[3][j].imag() = inptr2[3];
+            }
+          }
+#else
+	  auto const stride1 = in.stride(1) << 1;
+	  float inptr[4] __attribute__((aligned(64)));
+
+	  float const * __restrict inbuf = (float const *)(in.data() + cb_site*in.stride(0));
 	  {
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-      		out._data[0][0].real() = inptr[0];
-      		out._data[0][0].imag() = inptr[1];
-      		out._data[1][0].real() = inptr[2];
-      		out._data[1][0].imag() = inptr[3];
-		inptr += stride1;
+		  load4(inptr,inbuf);
+		  inbuf += stride1;
+		  out._data[0][0].real() = inptr[0];
+		  out._data[0][0].imag() = inptr[1];
+		  out._data[1][0].real() = inptr[2];
+		  out._data[1][0].imag() = inptr[3];
+		  
 	  }
-          {
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-                out._data[2][0].real() = inptr[0];
-                out._data[2][0].imag() = inptr[1];
-                out._data[3][0].real() = inptr[2];
-                out._data[3][0].imag() = inptr[3];
-		inptr += stride1;
-          }
 	  {
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-                out._data[0][1].real() = inptr[0];
-                out._data[0][1].imag() = inptr[1];
-                out._data[1][1].real() = inptr[2];
-                out._data[1][1].imag() = inptr[3];
-		inptr+= stride1;
-          }
-          {
+		  load4(inptr,inbuf);
+		  inbuf += stride1;
+		  out._data[2][0].real() = inptr[0];
+		  out._data[2][0].imag() = inptr[1];
+		  out._data[3][0].real() = inptr[2];
+		  out._data[3][0].imag() = inptr[3];
+	  }
+	  {
+		  load4(inptr,inbuf);
+		  inbuf += stride1;
+		  out._data[0][1].real() = inptr[0];
+		  out._data[0][1].imag() = inptr[1];
+		  out._data[1][1].real() = inptr[2];
+		  out._data[1][1].imag() = inptr[3];
+	  }
+	  {
+		  load4(inptr,inbuf);
+		  inbuf += stride1;
+		  out._data[2][1].real() = inptr[0];
+		  out._data[2][1].imag() = inptr[1];
+		  out._data[3][1].real() = inptr[2];
+		  out._data[3][1].imag() = inptr[3];
+	  }
+	  {
+		  load4(inptr,inbuf);
+		  inbuf += stride1;
+		  out._data[0][2].real() = inptr[0];
+		  out._data[0][2].imag() = inptr[1];
+		  out._data[1][2].real() = inptr[2];
+		  out._data[1][2].imag() = inptr[3];
+	  }
+	  {
+		  load4(inptr, inbuf);
+		  out._data[2][2].real() = inptr[0];
+		  out._data[2][2].imag() = inptr[1];
+		  out._data[3][2].real() = inptr[2];
+		  out._data[3][2].imag() = inptr[3];
+	  }
+#endif
+  }
 
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-                out._data[2][1].real() = inptr[0];
-                out._data[2][1].imag() = inptr[1];
-                out._data[3][1].real() = inptr[2];
-                out._data[3][1].imag() = inptr[3];
-	        inptr += stride1;
-          }
+  template<>
+  KOKKOS_FORCEINLINE_FUNCTION
+	  void load<MGComplex<double>,MGComplex<double>>(SpinorSiteView<MGComplex<double>>& out, const SpinorView<MGComplex<double>>& in, IndexType cb_site)
+  {
+	  auto stride1 = in.stride(1) << 1;
+	  double const * inptr = (double const *)(in.data() + cb_site*in.stride(0));
+	  {
+		  out._data[0][0].real() = inptr[0];
+		  out._data[0][0].imag() = inptr[1];
+		  out._data[1][0].real() = inptr[2];
+		  out._data[1][0].imag() = inptr[3];
+		  inptr += stride1;
+	  }
+	  {
+		  out._data[2][0].real() = inptr[0];
+		  out._data[2][0].imag() = inptr[1];
+		  out._data[3][0].real() = inptr[2];
+		  out._data[3][0].imag() = inptr[3];
+		  inptr += stride1;
+	  }
+	  {
+		  out._data[0][1].real() = inptr[0];
+		  out._data[0][1].imag() = inptr[1];
+		  out._data[1][1].real() = inptr[2];
+		  out._data[1][1].imag() = inptr[3];
+		  inptr+= stride1;
+	  }
+	  {
+
+		  out._data[2][1].real() = inptr[0];
+		  out._data[2][1].imag() = inptr[1];
+		  out._data[3][1].real() = inptr[2];
+		  out._data[3][1].imag() = inptr[3];
+		  inptr += stride1;
+	  }
 
 	  {
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-                out._data[0][2].real() = inptr[0];
-                out._data[0][2].imag() = inptr[1];
-                out._data[1][2].real() = inptr[2];
-                out._data[1][2].imag() = inptr[3];
-		inptr += stride1;
-          }
-          {
-		//for(int i=0; i < 4; ++i) inptr[i] = inptr[i];
-                out._data[2][2].real() = inptr[0];
-                out._data[2][2].imag() = inptr[1];
-                out._data[3][2].real() = inptr[2];
-                out._data[3][2].imag() = inptr[3];
-		inptr += stride1;
-          }
+		  out._data[0][2].real() = inptr[0];
+		  out._data[0][2].imag() = inptr[1];
+		  out._data[1][2].real() = inptr[2];
+		  out._data[1][2].imag() = inptr[3];
+		  inptr += stride1;
+	  }
+	  {
+		  out._data[2][2].real() = inptr[0];
+		  out._data[2][2].imag() = inptr[1];
+		  out._data[3][2].real() = inptr[2];
+		  out._data[3][2].imag() = inptr[3];
+		  inptr += stride1;
+	  }
   }
 #endif
 
@@ -273,6 +373,10 @@ namespace MG
 
   template<typename TST, typename ST>
   KOKKOS_FORCEINLINE_FUNCTION
+  void write(const SpinorView<ST>& out, const SpinorSiteView<TST>& in, IndexType cb_site);
+#if 0
+  template<typename TST, typename ST>
+  KOKKOS_FORCEINLINE_FUNCTION
   void write(const SpinorView<ST>& out, const SpinorSiteView<TST>& in, IndexType cb_site)  {
     for(int color=0; color < 6; ++color) {
       for(int spin=0; spin < 2; ++spin) {
@@ -280,14 +384,70 @@ namespace MG
       }
     }
   }
-
-#if 1 
-   template<>
+#else
+  template<>
   KOKKOS_FORCEINLINE_FUNCTION
   void write<MGComplex<float>,MGComplex<float>>(const SpinorView<MGComplex<float>>& out, const SpinorSiteView<MGComplex<float>>& in, IndexType cb_site)
   {
-          auto stride1 = out.stride(1);
-          float* onptr = (float *)out.data() + cb_site*out.stride(0);
+	  auto const stride1 = out.stride(1) << 1;
+
+	  float onptr[4] __attribute__((aligned(64)));
+	  float * __restrict obuf = (float *)(out.data() + cb_site*out.stride(0));
+	  {
+		  onptr[0] = in._data[0][0].real();
+		  onptr[1] = in._data[0][0].imag();
+		  onptr[2] = in._data[1][0].real();
+		  onptr[3] = in._data[1][0].imag();
+		  write4(obuf,onptr);
+		  obuf += stride1;
+	  }
+	  {
+		  onptr[0] = in._data[2][0].real();
+		  onptr[1] = in._data[2][0].imag();
+		  onptr[2] = in._data[3][0].real();
+		  onptr[3] = in._data[3][0].imag();
+		  write4(obuf,onptr);
+		  obuf += stride1;
+	  }
+	  {
+		  onptr[0] = in._data[0][1].real();
+		  onptr[1] = in._data[0][1].imag();
+		  onptr[2] = in._data[1][1].real();
+		  onptr[3] = in._data[1][1].imag();
+		  write4(obuf,onptr);
+		  obuf += stride1;
+	  }
+	  {
+		  onptr[0] = in._data[2][1].real();
+		  onptr[1] = in._data[2][1].imag();
+		  onptr[2] = in._data[3][1].real();
+		  onptr[3] = in._data[3][1].imag();
+		  write4(obuf,onptr);
+		  obuf += stride1;
+	  }
+	  {
+		  onptr[0] = in._data[0][2].real();
+		  onptr[1] = in._data[0][2].imag();
+		  onptr[2] = in._data[1][2].real();
+		  onptr[3] = in._data[1][2].imag();
+		  write4(obuf,onptr);
+		  obuf += stride1;
+	  }
+	  {
+		  onptr[0] = in._data[2][2].real();
+		  onptr[1] = in._data[2][2].imag();
+		  onptr[2] = in._data[3][2].real();
+		  onptr[3] = in._data[3][2].imag();
+		  write4(obuf,onptr);
+	  }
+  }
+
+  template<>
+  KOKKOS_FORCEINLINE_FUNCTION
+  void write<MGComplex<double>,MGComplex<double>>(const SpinorView<MGComplex<double>>& out, const SpinorSiteView<MGComplex<double>>& in, IndexType cb_site)
+  {
+          auto stride1 = out.stride(1) << 1;
+          double * onptr = (double *)(out.data() + cb_site*out.stride(0));
           {
                 onptr[0] = in._data[0][0].real();
                 onptr[1] = in._data[0][0].imag();
@@ -317,7 +477,7 @@ namespace MG
                 onptr[3] = in._data[3][1].imag();
                 onptr += stride1;
           }
-	  {
+          {
                 onptr[0] = in._data[0][2].real();
                 onptr[1] = in._data[0][2].imag();
                 onptr[2] = in._data[1][2].real();
@@ -344,17 +504,138 @@ namespace MG
     }
   }
 
- template<typename TGT, typename GT>
-  KOKKOS_FORCEINLINE_FUNCTION
- void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir)  {
-    for(int row=0; row < 3; ++row) {
-      for(int col=0; col< 3; ++col) {
-	  out(row,col) = in(cb_site,dir,row,col);
-      }
+
+template<typename TGT, typename GT>
+KOKKOS_FORCEINLINE_FUNCTION
+void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir);
+
+#if 1
+template<typename TGT, typename GT>
+KOKKOS_FORCEINLINE_FUNCTION
+void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir)  {
+#if 0
+    GT  const * inptr = (GT const *)(in.data() + cb_site*in.stride(0) + dir*in.stride(1));
+    auto colstride = in.stride(3);
+    {
+          out._data[0][0] = *inptr;
+          inptr += colstride;
     }
 
-  }
-  
+    {
+          out._data[1][0] = *inptr;
+          inptr += colstride;
+    }
+    {
+          out._data[2][0] = *inptr;
+          inptr += colstride;
+    }
+    {
+          out._data[0][1] = *inptr;
+          inptr += colstride;
+    }
+
+    {
+          out._data[1][1] = *inptr;
+          inptr += colstride;
+    }
+    {
+          out._data[2][1] = *inptr;
+          inptr += colstride;
+    }
+   {
+          out._data[0][2] = *inptr;
+          inptr += colstride;
+    }
+
+    {
+          out._data[1][2] = *inptr;
+          inptr += colstride;
+    }
+    {
+          out._data[2][2] = *inptr;
+          inptr += colstride;
+    }
+#else
+	using FT = typename BaseType<GT>::Type;
+	FT inptr[2] __attribute__((aligned(64)));
+
+	FT  const * __restrict inbuf = (FT const *)(in.data() + cb_site*in.stride(0) + dir*in.stride(1));
+	auto const colstride = in.stride(3) << 1;
+
+	{	 
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[0][0].real() = inptr[0];
+		out._data[0][0].imag() = inptr[1];
+	}
+
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[1][0].real() = inptr[0];
+		out._data[1][0].imag() = inptr[1];
+	}
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[2][0].real() = inptr[0];
+		out._data[2][0].imag() = inptr[1];
+	}
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[0][1].real() = inptr[0];
+		out._data[0][1].imag() = inptr[1];
+	}
+
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[1][1].real() = inptr[0];
+		out._data[1][1].imag() = inptr[1];
+	}
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[2][1].real() = inptr[0];
+		out._data[2][1].imag() = inptr[1];
+	}
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[0][2].real() = inptr[0];
+		out._data[0][2].imag() = inptr[1];
+	}
+
+	{
+		load2(inptr,inbuf);
+		inbuf += colstride;
+		out._data[1][2].real() = inptr[0];
+		out._data[1][2].imag() = inptr[1];
+	}
+	{
+		load2(inptr,inbuf);
+		out._data[2][2].real() = inptr[0];
+		out._data[2][2].imag() = inptr[1];
+	}
+#endif
+
+}
+#else
+#warning faff
+template<typename TGT, typename GT>
+KOKKOS_FORCEINLINE_FUNCTION
+void load(GaugeSiteView<TGT>& out, const GaugeView<GT>& in, IndexType cb_site, IndexType dir) {
+	for(int row=0; row < 3; ++row) { 
+	  for(int col=0; col < 3; ++col) {
+	     out(row,col)= in(cb_site,dir,row,col);
+	  }
+	}
+}
+
+
+#endif
+
 };
 
 

@@ -43,9 +43,8 @@ namespace MG
 
 							const int qdp_index = sub.siteTable()[i];
 							
-							h_out(i,spin/2 + 2*color,spin%2)= MGComplex<T>(qdp_in.elem(qdp_index).elem(spin).elem(color).real(),
-																	qdp_in.elem(qdp_index).elem(spin).elem(color).imag());
-
+							h_out(i,spin/2 + 2*color,spin%2).real() = qdp_in.elem(qdp_index).elem(spin).elem(color).real();
+							h_out(i,spin/2 + 2*color,spin%2).imag() =  qdp_in.elem(qdp_index).elem(spin).elem(color).imag(); 
 						} // spin
 					} // color
 			}// kokkos lambda
@@ -358,8 +357,8 @@ namespace MG
 							for(int color2=0; color2 < 3; ++color2) {
 								const int qdp_index = sub.siteTable()[i];
 
-								h_out(i,mu,color,color2)=MGComplex<T>( (qdp_in[mu]).elem(qdp_index).elem().elem(color,color2).real(),
-																			 (qdp_in[mu]).elem(qdp_index).elem().elem(color,color2).imag());
+								h_out(i,mu,color,color2).real() =  (qdp_in[mu]).elem(qdp_index).elem().elem(color,color2).real();
+																			 						h_out(i,mu,color,color2).imag()=(qdp_in[mu]).elem(qdp_index).elem().elem(color,color2).imag();
 							} //color2
 						} // color
 					} // mu

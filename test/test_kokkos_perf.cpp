@@ -35,7 +35,7 @@ constexpr static int V = 16;
 TEST(TestKokkos, TestSpinProject)
 {
 	IndexArray latdims={{32,32,32,32}};
-	int iters = 1000;
+	int iters = 20;
  
 	initQDPXXLattice(latdims);
 
@@ -307,7 +307,7 @@ TEST(TestKokkos, TestDslash)
 {
 
   IndexArray latdims={{L,L,L,L}};
-	int iters = 1000;
+	int iters = 10;
 
 	initQDPXXLattice(latdims);
 	LatticeInfo info(latdims,4,3,NodeInfo());

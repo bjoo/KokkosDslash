@@ -100,7 +100,7 @@ namespace MG
 					}
 				}
 
-			        load<TST,GT>(u_site,u,i,dir);
+			        load<TST,TST>(u_site,u,i,dir);
 				HalfSpinorSiteView<TST> site_out;
 				mult_u_halfspinor<TST>(u_site, site_in, site_out);
 
@@ -151,7 +151,7 @@ namespace MG
 				}
 			}
 			GaugeSiteView<TST> u_site;
-			load<TST,GT>(u_site,u,i,dir);
+			load<TST,TST>(u_site,u,i,dir);
 			HalfSpinorSiteView<TST> site_out;
 			mult_adj_u_halfspinor<TST>(u_site, site_in, site_out);
 

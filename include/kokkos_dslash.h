@@ -15,6 +15,8 @@
 #include "kokkos_matvec.h"
 #include "kokkos_traits.h"
 #include "kokkos_dslash_config.h"
+
+
 namespace MG {
 
 
@@ -168,32 +170,32 @@ public:
 
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborTMinus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 		return  ( t > 0 ) ? xcb + _n_xh*(y + _n_y*(z + _n_z*(t-1))) : xcb + _n_xh*(y + _n_y*(z + _n_z*(_n_t-1)));
 	}
 
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborZMinus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 		return  ( z > 0 ) ? xcb + _n_xh*(y + _n_y*((z-1) + _n_z*t)) : xcb + _n_xh*(y + _n_y*((_n_z-1) + _n_z*t));
 	}
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborYMinus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 		return  ( y > 0 ) ? xcb + _n_xh*((y-1) + _n_y*(z + _n_z*t)) : xcb + _n_xh*((_n_y-1) + _n_y*(z + _n_z*t));
 	}
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborXMinus(IndexType x, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 				return  (x > 0) ? ((x-1)>>1) + _n_xh*(y + _n_y*(z + _n_z*t)) : ((_n_x-1)>>1) + _n_xh*(y + _n_y*(z + _n_z*t));
 	}
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborXPlus(IndexType x, IndexType y, IndexType z, IndexType t,IndexType target_cb) const {
 
 		return  (x < _n_x - 1) ? ((x+1)>>1)  + _n_xh*(y + _n_y*(z + _n_z*t)) : 0 + _n_xh*(y + _n_y*(z + _n_z*t));
@@ -201,19 +203,19 @@ public:
 
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborYPlus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 		return  (y < _n_y - 1) ? xcb + _n_xh*((y+1) + _n_y*(z + _n_z*t)) : xcb + _n_xh*(0 + _n_y*(z + _n_z*t));
 	}
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborZPlus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 		return  (z < _n_z - 1) ? xcb + _n_xh*(y + _n_y*((z+1) + _n_z*t)) : xcb + _n_xh*(y + _n_y*(0 + _n_z*t));
 	}
 
 
-	KOKKOS_INLINE_FUNCTION
+	KOKKOS_FORCEINLINE_FUNCTION
 	IndexType NeighborTPlus(IndexType xcb, IndexType y, IndexType z, IndexType t, IndexType target_cb) const {
 
 		return  (t < _n_t - 1) ? xcb + _n_xh*(y + _n_y*(z + _n_z*(t+1))) : xcb + _n_xh*(y + _n_y*(z + _n_z*(0)));
@@ -296,24 +298,46 @@ private:
      IndexType sites_per_team;
      SiteTable neigh_table;
 
+
 	
 #if defined (MG_FLAT_PARALLEL_DSLASH)
      KOKKOS_FORCEINLINE_FUNCTION
      void operator()( IndexType site ) const {
+		 
+	     IndexType n0,n1,n2,n3,n4,n5,n6,n7;
+
 #ifndef MG_KOKKOS_USE_NEIGHBOR_TABLE
-		 IndexType x=0,xcb=0,y=0,z=0,t=0;
-		 {
-	  
-			IndexType tmp_yzt = site/neigh_table.GetNXh();
-		 	xcb = site - neigh_table.GetNXh() * tmp_yzt;
+	     {
+	         IndexType x=0,xcb=0,y=0,z=0,t=0;
+	  	 IndexType tmp_yzt = site/neigh_table.GetNXh();
+		 xcb = site - neigh_table.GetNXh() * tmp_yzt;
 		
-			IndexType tmp_zt = tmp_yzt /neigh_table.GetNY();
+		 IndexType tmp_zt = tmp_yzt /neigh_table.GetNY();
 		
-			y = tmp_yzt - neigh_table.GetNY() * tmp_zt;
-			t = tmp_zt / neigh_table.GetNZ();
-			z = tmp_zt - neigh_table.GetNZ() * t;
-			x = 2*xcb + ((target_cb+y+z+t)&0x1);
-		}
+		 y = tmp_yzt - neigh_table.GetNY() * tmp_zt;
+	 	 t = tmp_zt / neigh_table.GetNZ();
+		 z = tmp_zt - neigh_table.GetNZ() * t;
+		 x = 2*xcb + ((target_cb+y+z+t)&0x1);
+                 n0 = neigh_table.NeighborTMinus(xcb,y,z,t,target_cb);
+                 n1 = neigh_table.NeighborZMinus(xcb,y,z,t,target_cb);
+                 n2 = neigh_table.NeighborYMinus(xcb,y,z,t,target_cb);
+                 n3 = neigh_table.NeighborXMinus(x,y,z,t,target_cb);
+                 n4 = neigh_table.NeighborXPlus(x,y,z,t,target_cb);
+                 n5 = neigh_table.NeighborYPlus(xcb,y,z,t,target_cb);
+                 n6 = neigh_table.NeighborZPlus(xcb,y,z,t,target_cb);
+                 n7 = neigh_table.NeighborTPlus(xcb,y,z,t,target_cb);
+	     }
+#else
+             {
+                 n0 = neigh_table.NeighborTMinus(site,target_cb);
+                 n1 = neigh_table.NeighborZMinus(site,target_cb);
+                 n2 = neigh_table.NeighborYMinus(site,target_cb);
+                 n3 = neigh_table.NeighborXMinus(site,target_cb);
+                 n4 = neigh_table.NeighborXPlus(site,target_cb);
+                 n5 = neigh_table.NeighborYPlus(site,target_cb);
+                 n6 = neigh_table.NeighborZPlus(site,target_cb);
+                 n7 = neigh_table.NeighborTPlus(site,target_cb);
+              }
 #endif
 
 #elif defined (MG_KOKKOS_USE_MDRANGE)
@@ -323,6 +347,32 @@ private:
 
        IndexType site = xcb + neigh_table.GetNXh()*(y + neigh_table.GetNY()*(z + neigh_table.GetNZ()*t));
        IndexType x = 2*xcb + ((target_cb+y+z+t)&0x1);
+       IndexType n0,n1,n2,n3,n4,n5,n6,n7;
+#ifndef MG_KOKKOS_USE_NEIGHBOR_TABLE
+             {
+                 n0 = neigh_table.NeighborTMinus(xcb,y,z,t,target_cb);
+                 n1 = neigh_table.NeighborZMinus(xcb,y,z,t,target_cb);
+                 n2 = neigh_table.NeighborYMinus(xcb,y,z,t,target_cb);
+                 n3 = neigh_table.NeighborXMinus(x,y,z,t,target_cb);
+                 n4 = neigh_table.NeighborXPlus(x,y,z,t,target_cb);
+                 n5 = neigh_table.NeighborYPlus(xcb,y,z,t,target_cb);
+                 n6 = neigh_table.NeighborZPlus(xcb,y,z,t,target_cb);
+                 n7 = neigh_table.NeighborTPlus(xcb,y,z,t,target_cb);
+             }
+#else
+             {
+                 n0 = neigh_table.NeighborTMinus(site,target_cb);
+                 n1 = neigh_table.NeighborZMinus(site,target_cb);
+                 n2 = neigh_table.NeighborYMinus(site,target_cb);
+                 n3 = neigh_table.NeighborXMinus(site,target_cb);
+                 n4 = neigh_table.NeighborXPlus(site,target_cb);
+                 n5 = neigh_table.NeighborYPlus(site,target_cb);
+                 n6 = neigh_table.NeighborZPlus(site,target_cb);
+                 n7 = neigh_table.NeighborTPlus(site,target_cb);
+              }
+#endif
+
+
 #else
      KOKKOS_FORCEINLINE_FUNCTION
      void operator()(const TeamHandle& team) const {
@@ -330,9 +380,10 @@ private:
 		    const IndexType end_idx = start_idx + sites_per_team  < num_sites ? start_idx + sites_per_team : num_sites;
 
 		    Kokkos::parallel_for(Kokkos::TeamThreadRange(team,start_idx,end_idx),[=](const IndexType site) {
+  		         IndexType n0,n1,n2,n3,n4,n5,n6,n7;
 #ifndef MG_KOKKOS_USE_NEIGHBOR_TABLE
-		   	 IndexType x=0,xcb=0,y=0,z=0,t=0;
-		   	 {
+			 {
+		   	        IndexType x=0,xcb=0,y=0,z=0,t=0;
 	  
 		   		IndexType tmp_yzt = site/neigh_table.GetNXh();
 		   	 	xcb = site - neigh_table.GetNXh() * tmp_yzt;
@@ -343,7 +394,27 @@ private:
 		   		t = tmp_zt / neigh_table.GetNZ();
 		   		z = tmp_zt - neigh_table.GetNZ() * t;
 		   		x = 2*xcb + ((target_cb+y+z+t)&0x1);
+                                n0 = neigh_table.NeighborTMinus(xcb,y,z,t,target_cb);
+                                n1 = neigh_table.NeighborZMinus(xcb,y,z,t,target_cb);
+                                n2 = neigh_table.NeighborYMinus(xcb,y,z,t,target_cb);
+                                n3 = neigh_table.NeighborXMinus(x,y,z,t,target_cb);
+                                n4 = neigh_table.NeighborXPlus(x,y,z,t,target_cb);
+                                n5 = neigh_table.NeighborYPlus(xcb,y,z,t,target_cb);
+                                n6 = neigh_table.NeighborZPlus(xcb,y,z,t,target_cb);
+                                n7 = neigh_table.NeighborTPlus(xcb,y,z,t,target_cb);
+
 		   	}
+#else
+		   {
+                     n0 = neigh_table.NeighborTMinus(site,target_cb);
+                     n1 = neigh_table.NeighborZMinus(site,target_cb);
+                     n2 = neigh_table.NeighborYMinus(site,target_cb);
+                     n3 = neigh_table.NeighborXMinus(site,target_cb);
+                     n4 = neigh_table.NeighborXPlus(site,target_cb);
+                     n5 = neigh_table.NeighborYPlus(site,target_cb);
+                     n6 = neigh_table.NeighborZPlus(site,target_cb);
+                     n7 = neigh_table.NeighborTPlus(site,target_cb);
+		   }
 #endif
 
 
@@ -354,126 +425,97 @@ private:
 		    SpinorSiteView<TST> res_sum;// __attribute__((aligned(64)));
 		    // Temporaries: Not a true Kokkos View
 		    HalfSpinorSiteView<TST> proj_res; // __attribute__((aligned(64)));
-		    HalfSpinorSiteView<TST> mult_proj_res; // __attribute__((aligned(64)));
-		    
+		    HalfSpinorSiteView<TST> mult_proj_res; // __attribute__((aligned(64)));a
 
+		    
 		    for(IndexType color=0; color < 3; ++color) {
 		      for(IndexType spin=0; spin < 4; ++spin) {
 			ComplexZero(res_sum(color,spin));
 		      }
 		    }
-			
+
 		    {
-		    // T - minus
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborTMinus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborTMinus(xcb,y,z,t,target_cb);
-#endif
+		      // T - minus
 		      {
-			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
-			KokkosProjectDir3<ST,TST,isign>(in, proj_res);
+		      SpinorSiteView<TST> in;
+		      load<TST,ST>(in, s_in,n0);
+		      KokkosProjectDir3<ST,TST,isign>(in, proj_res);
 		      }
-		      {
-			GaugeSiteView<TST> u;
-			load<TST,GT>(u,g_in_src_cb, neigh_idx,3);
-			mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
-		      }
+	              {	      
+	      	      GaugeSiteView<TST> u;	      
+		      load<TST,GT>(u,g_in_src_cb, n0,3);
+	     	      mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
+		      } 
 		      KokkosRecons23Dir3<TST,isign>(mult_proj_res,res_sum);
 		    }
 			
 		    // Z - minus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborZMinus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborZMinus(xcb,y,z,t,target_cb);
-#endif
 		      {
-			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
-			KokkosProjectDir2<ST,TST,isign>(in, proj_res);
+		      SpinorSiteView<TST> in;
+	              load<TST,ST>(in, s_in,n1);
+		      KokkosProjectDir2<ST,TST,isign>(in, proj_res);
 		      }
-		      {
-			GaugeSiteView<TST> u;
-			load<TST,GT>(u,g_in_src_cb, neigh_idx,2);
-			mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
+	              {	      
+		      GaugeSiteView<TST> u;
+	              load<TST,GT>(u,g_in_src_cb, n1,2);
+		      mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir2<TST,isign>(mult_proj_res,res_sum);
 		    }
-			
+
 		    // Y - minus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborYMinus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborYMinus(xcb,y,z,t,target_cb);
-#endif
 		      {
-			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
-			KokkosProjectDir1<ST,TST,isign>(in, proj_res);
+		      SpinorSiteView<TST> in;
+		      load<TST,ST>(in, s_in,n2);
+		      KokkosProjectDir1<ST,TST,isign>(in, proj_res);
 		      }
 		      {
-			GaugeSiteView<TST> u;
-			load<TST,GT>(u,g_in_src_cb, neigh_idx,1);
-			mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
+		      GaugeSiteView<TST> u;
+		      load<TST,GT>(u,g_in_src_cb, n2,1);
+		      mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir1<TST,isign>(mult_proj_res,res_sum);
 		    }
-		    
 		    // X - minus
 		    {
 
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborXMinus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborXMinus(x,y,z,t,target_cb);
-#endif
 		      {
-			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
-			KokkosProjectDir0<ST,TST,isign>(in, proj_res);
+		      SpinorSiteView<TST> in;
+		      load<TST,ST>(in, s_in,n3);
+		      KokkosProjectDir0<ST,TST,isign>(in, proj_res);
 		      }
+		
 		      {
-			GaugeSiteView<TST> u;		      
-			load<TST,GT>(u,g_in_src_cb, neigh_idx,0);
-			mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
+		      GaugeSiteView<TST> u;
+		      load<TST,GT>(u,g_in_src_cb, n3,0);
+		      mult_adj_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir0<TST,isign>(mult_proj_res,res_sum);
 		    }
 		    
 		    // X - plus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborXPlus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborXPlus(x,y,z,t,target_cb);
-#endif
 		      {
-			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
-			KokkosProjectDir0<ST,TST,-isign>(in,proj_res);
+		      SpinorSiteView<TST> in;
+		      load<TST,ST>(in, s_in,n4);
+		      KokkosProjectDir0<ST,TST,-isign>(in,proj_res);
 		      }
 		      {
-			GaugeSiteView<TST> u;
-			load<TST,GT>(u,g_in_target_cb,site,0);
-			mult_u_halfspinor<TST>(u,proj_res,mult_proj_res);
-		      }
+		      GaugeSiteView<TST> u;
+		      load<TST,GT>(u,g_in_target_cb,site,0);
+		      mult_u_halfspinor<TST>(u,proj_res,mult_proj_res);
+		      } 
 		      KokkosRecons23Dir0<TST,-isign>(mult_proj_res, res_sum);
 		    }
 		    
 		    // Y - plus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborYPlus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborYPlus(xcb,y,z,t,target_cb);
-#endif
+#if 1
 		      {
 			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
+			load<TST,ST>(in, s_in,n5);
 			KokkosProjectDir1<ST,TST,-isign>(in,proj_res);
 		      }
 		      {
@@ -482,18 +524,15 @@ private:
 			mult_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir1<TST,-isign>(mult_proj_res, res_sum);
+#endif
 		    }
 
 		    // Z - plus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborZPlus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborZPlus(xcb,y,z,t,target_cb);
-#endif
+#if 1
 		      {
 			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
+			load<TST,ST>(in, s_in,n6);
 			KokkosProjectDir2<ST,TST,-isign>(in,proj_res);
 		      }
 
@@ -503,18 +542,15 @@ private:
 			mult_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir2<TST,-isign>(mult_proj_res, res_sum);
+#endif
 		    }
 		    
 		    // T - plus
 		    {
-#if defined(MG_KOKKOS_USE_NEIGHBOR_TABLE)
-		      IndexType neigh_idx = neigh_table.NeighborTPlus(site,target_cb);
-#else
-		      IndexType neigh_idx = neigh_table.NeighborTPlus(xcb,y,z,t,target_cb);
-#endif
+#if 1
 		      {
 			SpinorSiteView<TST> in;
-			load<TST,ST>(in, s_in,neigh_idx);
+			load<TST,ST>(in, s_in,n7);
 			KokkosProjectDir3<ST,TST,-isign>(in,proj_res);
 		      }
 		      {
@@ -523,9 +559,10 @@ private:
 			mult_u_halfspinor<TST>(u,proj_res,mult_proj_res);
 		      }
 		      KokkosRecons23Dir3<TST,-isign>(mult_proj_res, res_sum);
+#endif
 		    }
-		    
-		    // Stream out spinor
+		   
+	             // Stream out spinor
 		    write<TST,ST>(s_out, res_sum,site);
 #if !defined (MG_FLAT_PARALLEL_DSLASH) && !defined(MG_KOKKOS_USE_MDRANGE)
 	      });
@@ -542,6 +579,7 @@ class KokkosDslash {
 	SiteTable _neigh_table;
 	const IndexType _sites_per_team;
 public:
+
 
 KokkosDslash(const LatticeInfo& info, IndexType sites_per_team=1) : _info(info),
 	  _neigh_table(info.GetCBLatticeDimensions()[0],info.GetCBLatticeDimensions()[1],info.GetCBLatticeDimensions()[2],info.GetCBLatticeDimensions()[3]),

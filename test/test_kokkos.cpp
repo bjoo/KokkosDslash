@@ -944,23 +944,22 @@ TEST(TestKokkos, TestMultHalfSpinor)
 #if defined(MG_FLAT_PARALLEL_DSLASH)
 TEST(TestKokkos, TestDslash)
 {
-	IndexArray latdims={{16,16,16,16}};
+	IndexArray latdims={{4,4,4,4}};
 	initQDPXXLattice(latdims);
-	multi1d<LatticeColorMatrix> gauge_in(n_dim);
-	for(int mu=0; mu < n_dim; ++mu) {
+	multi1d<LatticeColorMatrixF> gauge_in(4);
+	for(int mu=0; mu < 4; ++mu) {
 		gaussian(gauge_in[mu]);
 		reunit(gauge_in[mu]);
 	}
 
-	LatticeFermion psi_in=zero;
-	gaussian(psi_in);
+	LatticeFermionF psi_in=zero;
 
 	LatticeInfo info(latdims,4,3,NodeInfo());
 	LatticeInfo hinfo(latdims,2,3,NodeInfo());
 
-	KokkosCBFineSpinor<MGComplex<REAL>,4> kokkos_spinor_even(info,EVEN);
-	KokkosCBFineSpinor<MGComplex<REAL>,4> kokkos_spinor_odd(info,ODD);
-	KokkosFineGaugeField<MGComplex<REAL>>  kokkos_gauge(info);
+	KokkosCBFineSpinor<MGComplex<REAL32>,4> kokkos_spinor_even(info,EVEN);
+	KokkosCBFineSpinor<MGComplex<REAL32>,4> kokkos_spinor_odd(info,ODD);
+	KokkosFineGaugeField<MGComplex<REAL32>>  kokkos_gauge(info);
 
 
 	// Import Gauge Field
@@ -968,37 +967,39 @@ TEST(TestKokkos, TestDslash)
 
 
 	int per_team = 2;
-	KokkosDslash<MGComplex<REAL>,MGComplex<REAL>,MGComplex<REAL>> D(info,per_team);
+	KokkosDslash<MGComplex<REAL32>,MGComplex<REAL32>,MGComplex<REAL32>> D(info,per_team);
 	MasterLog(INFO, "per_team=%d", per_team);
 
-	LatticeFermion psi_out = zero;
-	LatticeFermion  kokkos_out=zero;
+	LatticeFermionF psi_out = zero;
+	LatticeFermionF  kokkos_out=zero;
 	for(int cb=0; cb < 2; ++cb) {
-	  KokkosCBFineSpinor<MGComplex<REAL>,4>& out_spinor = (cb == EVEN) ? kokkos_spinor_even : kokkos_spinor_odd;
-	  KokkosCBFineSpinor<MGComplex<REAL>,4>& in_spinor = (cb == EVEN) ? kokkos_spinor_odd: kokkos_spinor_even;
+	  KokkosCBFineSpinor<MGComplex<REAL32>,4>& out_spinor = (cb == EVEN) ? kokkos_spinor_even : kokkos_spinor_odd;
+	  KokkosCBFineSpinor<MGComplex<REAL32>,4>& in_spinor = (cb == EVEN) ? kokkos_spinor_odd: kokkos_spinor_even;
 	  
 	    for(int isign=-1; isign < 2; isign+=2) {
 	      
 	      // In the Host
 	      psi_out = zero;
-	      
-	      // Target cb=1 for now.
+	      psi_in = zero;
+	      gaussian(psi_in,rb[1-cb]);
+	      QDPIO::cout << "Norm2 psi_in(cb, othercb) = " << norm2(psi_in,rb[cb]) << " " << norm2(psi_in,rb[1-cb]) << std::endl;
+ 
 	      dslash(psi_out,gauge_in,psi_in,isign,cb);
-	      
+	      QDPIO::cout << "Norm2 psi_out(cb,othercb) = " << norm2(psi_out,rb[cb]) << " " <<  norm2(psi_out,rb[1-cb]) << std::endl;
+ 
 	      QDPLatticeFermionToKokkosCBSpinor(psi_in, in_spinor);
-	      
-	      
 	      D(in_spinor,kokkos_gauge,out_spinor,isign);
 	      
 	      kokkos_out = zero;
 	      KokkosCBSpinorToQDPLatticeFermion(out_spinor, kokkos_out);
-	      
+	      QDPIO::cout << "Norm2 kokkos_out(cb,othercb) = " << norm2(kokkos_out,rb[cb]) << " " << norm2(kokkos_out,rb[1-cb]) <<  std::endl; 
+ 
 	      // Check Diff on Odd
 	      psi_out[rb[cb]] -= kokkos_out;
 	      double norm_diff = toDouble(sqrt(norm2(psi_out,rb[cb])));
-	      
-	      MasterLog(INFO, "sites_per_team=%d norm_diff = %lf", per_team, norm_diff);
-	      ASSERT_LT( norm_diff, 1.0e-5);
+	      double norm_diff_per_site = norm_diff / (double)( QDP::Layout::vol() ); 
+	      MasterLog(INFO, "norm_diff per site = %16.9e", norm_diff_per_site );
+	      ASSERT_LT( norm_diff_per_site, 1.0e-7);
 	    }
 	}
 	
